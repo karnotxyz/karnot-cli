@@ -1,0 +1,11 @@
+1. Pull erigon docker image and run
+2. Blocks scout explorer (Optional)
+3. L2 explorer Starknet (lambdaclass)
+4. Madara clone, checkout version, build madara
+
+
+1. Erigon run
+2. Deploy smart contracts on erigon (Starknet L1 contracts)
+3. Avail/Celestia light client (Optional)
+4. Start madara
+5. Start explorers (L1 & L2)
