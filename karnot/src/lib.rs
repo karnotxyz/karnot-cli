@@ -1,4 +1,8 @@
 use env_logger;
+pub mod cli;
+
+pub mod app;
+pub mod utils;
 
 pub fn setup_logger() {
     let mut log_builder = env_logger::Builder::new();
@@ -7,7 +11,3 @@ pub fn setup_logger() {
     log_builder.parse_env(env);
     log_builder.init();
 }
-
-pub mod cli;
-
-pub mod app;
