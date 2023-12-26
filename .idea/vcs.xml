@@ -4,5 +4,6 @@
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/karnot" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/karnot/my_repo" vcs="Git" />
   </component>
 </project>

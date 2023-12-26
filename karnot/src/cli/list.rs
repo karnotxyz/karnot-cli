@@ -1,42 +1,43 @@
-use std::fs;
+use std::{fs};
 
 use crate as karnot;
 
 use karnot::app::config::AppChainConfig;
+use std::path::{Path};
+use crate::app::utils::{get_app_chains_home};
 
 pub fn list() {
-    get_app_configs();
+    let apps = get_apps_list();
+    println!("{:?}", apps);
 }
 
-/// Assumes that all the app configs are saved at "~/.karnot"
-fn get_app_configs() {
-    let home = match dirs::home_dir() {
-        Some(path) => path,
-        None => {
-            eprintln!("Unable to get the home directory.");
-            return;
-        }
-    };
+/// Assumes that all the app configs are saved at "~/.karnot/app-chains/{app}/{app}-config.toml"
+/// But return app names after validating the {app}-config.toml
+fn get_apps_list() -> Vec<String> {
+    let mut config_paths = Vec::new();
+    let app_configs = get_app_chains_home().unwrap();
 
-    let karnot_config = home.join(".karnot");
-
-    if let Ok(entries) = fs::read_dir(&karnot_config) {
+    if let Ok(entries) = fs::read_dir(&app_configs) {
         for entry in entries {
             if let Ok(entry) = entry {
                 let file_name = entry.file_name().into_string().unwrap_or_default();
-                let file_path = entry.path().into_os_string().into_string().unwrap();
-                if file_name.ends_with(".toml") && check_toml(&file_path) {
-                    println!("Config found: {}", file_name);
+                let file_path = entry.path().join(format!("{}-config.toml",file_name));
+                if check_toml(&file_path) {
+                    if let Some(path_str) = file_path.to_str() {
+                        config_paths.push(file_name);
+                    }
                 }
             } else {
-                eprintln!("Error reading directory: {:?}", karnot_config)
+                eprintln!("Error reading directory: {:?}", app_configs)
             }
         }
     }
+
+    config_paths
 }
 
-pub fn check_toml(file: &str) -> bool {
-    let toml_content = match fs::read_to_string(&file) {
+fn check_toml(file_path: &Path) -> bool {
+    let toml_content = match fs::read_to_string(&file_path) {
         Ok(content) => content,
         Err(err) => {
             eprintln!("Error reading file: {}", err);

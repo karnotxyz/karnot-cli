@@ -10,6 +10,7 @@ use super::prompt::{
 use karnot::app::config::{AppChainConfig, ConfigVersion};
 
 use serde::Deserialize;
+use crate::app::utils::{get_app_home, get_app_chains_home};
 
 pub fn init() {
     generate_config();
@@ -46,23 +47,9 @@ fn generate_config() {
 
 fn write_config(config: &AppChainConfig) {
     let toml = config.to_toml().unwrap();
-    let file = format!("{}.toml", config.app_chain);
-    let mut full_file_path: PathBuf = PathBuf::from("");
-
-    if let Some(mut home_dir) = dirs::home_dir() {
-        home_dir.push(".karnot");
-
-        if let Err(err) = fs::create_dir_all(&home_dir) {
-            eprintln!("Error creating .karnot directory: {}", err);
-            return;
-        }
-
-        full_file_path = PathBuf::from(home_dir);
-        full_file_path.push(&file);
-    } else {
-        eprintln!("Failed to get the home directory.");
-        full_file_path.push(&file);
-    }
+    let config_file = format!("{}-config.toml", config.app_chain);
+    let app_home = get_app_home(&config.app_chain).unwrap();
+    let full_file_path= app_home.join(config_file);
 
     if let Err(err) = fs::write(&full_file_path, toml) {
         eprintln!("Error writing to file: {}", err);
