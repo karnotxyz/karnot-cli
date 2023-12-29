@@ -5,11 +5,17 @@ use strum::IntoEnumIterator;
 use crate as karnot;
 
 use karnot::app::config::{DALayer, RollupMode};
+use crate::cli::list::get_apps_list;
 
 pub fn ask_for_app_chain_name() -> Result<String, InquireError> {
     Text::new("Enter you app chain name:")
         .with_default("karnot")
         .prompt()
+}
+
+pub fn select_app_chain() -> Result<String, InquireError> {
+    let app_chains = get_apps_list();
+    Select::new("Select app you want to run:", app_chains).prompt()
 }
 
 pub fn ask_for_base_path() -> Result<String, InquireError> {

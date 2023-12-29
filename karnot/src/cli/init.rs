@@ -1,5 +1,4 @@
 use std::fs;
-use std::path::PathBuf;
 
 use crate as karnot;
 
@@ -10,7 +9,7 @@ use super::prompt::{
 use karnot::app::config::{AppChainConfig, ConfigVersion};
 
 use serde::Deserialize;
-use crate::app::utils::{get_app_home, get_app_chains_home};
+use crate::app::utils::{get_app_home};
 
 pub fn init() {
     generate_config();

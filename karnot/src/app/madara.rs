@@ -8,7 +8,7 @@ pub fn clone_madara_and_build_repo() -> Result<(), std::io::Error> {
     let repo_url = "https://github.com/keep-starknet-strange/madara";
     let madara_path = get_karnot_home().unwrap().join("madara");
 
-    git_clone(repo_url, &madara_path)?;
+    git_clone(repo_url, &madara_path);
 
     // Change directory to the cloned repository
     std::env::set_current_dir(madara_path);

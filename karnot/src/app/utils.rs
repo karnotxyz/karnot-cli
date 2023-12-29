@@ -2,6 +2,8 @@ use std::fs;
 use std::io::ErrorKind;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
+use git2::{Error, Repository};
+
 
 pub fn get_karnot_home() -> Result<PathBuf, std::io::Error> {
     if let Some(home_dir) = dirs::home_dir() {
@@ -40,23 +42,38 @@ pub fn get_app_home(app: &str) -> Result<PathBuf, std::io::Error> {
     Ok(app_home)
 }
 
-pub fn git_clone(url: &str, path: &PathBuf) -> Result<(), std::io::Error>{
-    let mut command = Command::new("git");
-    command
+pub fn git_clone(url: &str, path: &PathBuf) -> Result<(), std::io::Error> {
+    match Repository::open(path) {
+        Ok(repo) => {
+            // Check if the repository is valid
+            if repo.is_empty() == Ok(false) {
+                let remote = repo.find_remote("origin").unwrap();
+                let madara = remote.url().unwrap() == url;
+                if madara {
+                    return Ok(());
+                }
+            }
+        }
+        // We will clone the repo
+        Err(_) => {}
+    }
+
+    let output = Command::new("git")
         .arg("clone")
         .arg("--progress")
         .arg(url)
         .arg(path)
-        .stdout(Stdio::inherit()) // Redirects the output to the standard output
-        .stderr(Stdio::inherit()); // Redirects the error output to the standard error
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .output()?;
 
-    let status = command.status()?;
+    let status = output.status;
 
-    if status.success() {
+    return if status.success() {
         println!("Clone successful!");
         Ok(())
     } else {
         eprintln!("Clone failed");
-        Err(std::io::Error::new(std::io::ErrorKind::Other, "Clone failed"))
-    }
+        Err(std::io::Error::new(ErrorKind::Other, "Clone failed"))
+    };
 }

@@ -15,11 +15,7 @@ enum Commands {
     /// Lists all the existing App Chain configs
     List,
     /// Runs the App Chain using Madara
-    Run {
-        /// App Chain config
-        #[arg(short, long)]
-        app_chain: Option<String>,
-    },
+    Run
 }
 
 fn main() {
@@ -28,7 +24,7 @@ fn main() {
     match &cli.command {
         Some(Commands::Init) => karnot::cli::init::init(),
         Some(Commands::List) => karnot::cli::list::list(),
-        Some(Commands::Run { app_chain}) => karnot::cli::run::run(app_chain),
+        Some(Commands::Run) => karnot::cli::run::run(),
         None => println!("Use --help to see the complete list of available commands"),
     }
 }

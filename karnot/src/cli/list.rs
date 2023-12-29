@@ -13,7 +13,7 @@ pub fn list() {
 
 /// Assumes that all the app configs are saved at "~/.karnot/app-chains/{app}/{app}-config.toml"
 /// But return app names after validating the {app}-config.toml
-fn get_apps_list() -> Vec<String> {
+pub fn get_apps_list() -> Vec<String> {
     let mut config_paths = Vec::new();
     let app_configs = get_app_chains_home().unwrap();
 
