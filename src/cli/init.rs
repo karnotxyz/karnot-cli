@@ -6,7 +6,8 @@ use crate::app::config::{AppChainConfig, ConfigVersion};
 
 use crate::app::config::{DALayer, RollupMode};
 use crate::cli::constants::{MADARA_REPO_NAME, MADARA_REPO_ORG};
-use crate::utils::github::{get_latest_commit_hash, GithubError};
+use crate::utils::github::{get_latest_commit_hash};
+use crate::utils::errors::GithubError;
 use strum::IntoEnumIterator;
 use thiserror::Error;
 use crate::utils::paths::{get_app_chains_home, get_app_home};
@@ -19,6 +20,8 @@ pub enum InitError {
     FailedToWriteConfig(#[from] io::Error),
     #[error("Failed to get latest commit hash: {0}")]
     FailedToGetLatestCommitHash(#[from] GithubError),
+    #[error("Failed to serialize to toml: {0}")]
+    FailedToSerializeToToml(#[from] toml::ser::Error),
 }
 
 pub fn init() {
@@ -34,14 +37,21 @@ pub fn init() {
             panic!("Failed to write config: {}", err);
         }
     };
-    log::info!("✅ New app chain initialised.");
+    println!("✅ New app chain initialised.");
 }
 
 fn generate_config() -> Result<AppChainConfig, InitError> {
     let app_chain = get_text_input("Enter you app chain name:", Some("karnot"))?;
-    let binding = get_app_chains_home().unwrap().join(format!("{}/data", app_chain));
-    let default_base_path = binding.to_str().unwrap();
-    let base_path = get_text_input("Enter base path for data directory of your app chain:", Some(default_base_path))?;
+
+    let app_chains_home = get_app_chains_home()?;
+    let binding = app_chains_home
+            .join(format!("{}/data", app_chain));
+    let default_base_path = match binding.to_str() {
+        Some(path_str) => path_str,
+        None => "karnot",
+    };
+
+    let base_path = get_text_input("Enter base path for data directory of your app chain:", Some(&default_base_path))?;
     let chain_id = get_text_input("Enter chain id for your app chain:", Some("KARNOT"))?;
     let mode = get_option("Select mode for your app chain:", RollupMode::iter().collect::<Vec<_>>())?;
     let da_layer = get_option("Select DA layer for your app chain:", DALayer::iter().collect::<Vec<_>>())?;
@@ -67,9 +77,9 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
 }
 
 fn write_config(config: &AppChainConfig) -> Result<(), InitError> {
-    let toml = config.to_toml().unwrap();
+    let toml = config.to_toml()?;
     let config_file = format!("{}-config.toml", config.app_chain);
-    let app_home = get_app_home(&config.app_chain).unwrap();
+    let app_home = get_app_home(&config.app_chain)?;
     let full_file_path= app_home.join(config_file);
 
     if let Err(err) = fs::write(&full_file_path, toml) {

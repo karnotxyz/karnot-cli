@@ -13,7 +13,7 @@ pub fn execute_cmd(program: &str, args: &[&str], dir: &PathBuf) -> Result<(), Er
     match result {
         Ok(output) => {
             if output.status.success() {
-                println!("Successfully executed {}", program);
+                log::info!("Successfully executed {}", program);
                 Ok(())
             } else {
                 Err(Error::new(ErrorKind::Other, "Unable to execute command"))
@@ -21,7 +21,7 @@ pub fn execute_cmd(program: &str, args: &[&str], dir: &PathBuf) -> Result<(), Er
 
         }
         Err(err) => {
-            println!("Error executing {}", program);
+            log::error!("Error executing {}", program);
             Err(err)
         }
     }

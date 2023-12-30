@@ -1,23 +1,14 @@
-use std::io::ErrorKind;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
-use git2::Repository;
+use git2::{Repository};
 use serde::Deserialize;
-use thiserror::Error;
+use crate::utils::errors::GithubError;
 
 pub const GITHUB_API_BASE_URL: &str = "https://api.github.com";
 
 #[derive(Debug, Deserialize)]
 struct Commit {
     sha: String,
-}
-
-#[derive(Debug, Error)]
-pub enum GithubError {
-    #[error("Failed to get commits from Github")]
-    FailedToGetCommits(reqwest::Error),
-    #[error("No commits found")]
-    NoCommitsFound,
 }
 
 pub fn get_latest_commit_hash(org: &str, repo: &str) -> Result<String, GithubError> {
@@ -40,14 +31,13 @@ pub fn get_latest_commit_hash(org: &str, repo: &str) -> Result<String, GithubErr
     };
 }
 
-pub fn git_clone(url: &str, path: &PathBuf) -> Result<(), std::io::Error> {
+pub fn git_clone(url: &str, path: &PathBuf) -> Result<(), GithubError> {
     match Repository::open(path) {
         Ok(repo) => {
             // Check if the repository is valid
             if repo.is_empty() == Ok(false) {
-                let remote = repo.find_remote("origin").unwrap();
-                let madara = remote.url().unwrap() == url;
-                if madara {
+                let remote = repo.find_remote("origin")?;
+                if remote.url().unwrap_or_default() == url {
                     return Ok(());
                 }
             }
@@ -68,11 +58,11 @@ pub fn git_clone(url: &str, path: &PathBuf) -> Result<(), std::io::Error> {
     let status = output.status;
 
     return if status.success() {
-        println!("Clone successful!");
+        log::info!("Clone successful!");
         Ok(())
     } else {
-        eprintln!("Clone failed");
-        Err(std::io::Error::new(ErrorKind::Other, "Clone failed"))
+        log::error!("Clone failed");
+        Err(GithubError::FailedToCloneRepo)
     };
 }
 

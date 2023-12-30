@@ -1,9 +1,6 @@
 use std::fs;
 use std::io::ErrorKind;
 use std::path::PathBuf;
-use std::process::{Command, Stdio};
-use git2::{Repository};
-
 
 pub fn get_karnot_home() -> Result<PathBuf, std::io::Error> {
     if let Some(home_dir) = dirs::home_dir() {

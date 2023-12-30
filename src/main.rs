@@ -25,6 +25,6 @@ fn main() {
         Some(Commands::Init) => cli::init::init(),
         Some(Commands::List) => cli::list::list(),
         Some(Commands::Run) => cli::run::run(),
-        None => println!("Use --help to see the complete list of available commands"),
+        None => log::info!("Use --help to see the complete list of available commands"),
     }
 }

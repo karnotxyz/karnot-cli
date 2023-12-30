@@ -1,5 +1,3 @@
-use env_logger;
-
 pub mod cli;
 
 pub mod app;

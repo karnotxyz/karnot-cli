@@ -1,50 +1,44 @@
 use std::{fs};
-use crate::app::config::AppChainConfig;
-use std::path::{Path};
 use crate::utils::paths::{get_app_chains_home};
+use crate::utils::toml::regenerate_app_config;
 
 pub fn list() {
-    let apps = get_apps_list();
-    println!("{:?}", apps);
+    match get_apps_list() {
+        Ok(apps) => {
+            println!("App Chain: {:?}", apps);
+        },
+        Err(err) => {
+            panic!("Failed to list: {}", err);
+        }
+    }
 }
 
 /// Assumes that all the app configs are saved at "~/.karnot/app-chains/{app}/{app}-config.toml"
 /// But return app names after validating the {app}-config.toml
-pub fn get_apps_list() -> Vec<String> {
-    let mut config_paths = Vec::new();
-    let app_configs = get_app_chains_home().unwrap();
-
-    if let Ok(entries) = fs::read_dir(&app_configs) {
-        for entry in entries {
-            if let Ok(entry) = entry {
-                let file_name = entry.file_name().into_string().unwrap_or_default();
-                let file_path = entry.path().join(format!("{}-config.toml",file_name));
-                if check_toml(&file_path) {
-                        config_paths.push(file_name);
-                }
-            } else {
-                eprintln!("Error reading directory: {:?}", app_configs)
-            }
+pub fn get_apps_list() -> Result<Vec<String>, std::io::Error> {
+    let app_configs = get_app_chains_home()?;
+    let app_names: Vec<String> = match fs::read_dir(&app_configs) {
+        Ok(entries) => {
+            entries
+                .filter_map(|entry| {
+                    entry.ok().and_then(|entry| {
+                        entry.file_name().into_string().ok().and_then(|file_name| {
+                            let (_,valid) = regenerate_app_config(&file_name).unwrap_or_default();
+                            if valid {
+                                Some(file_name)
+                            } else {
+                                None
+                            }
+                        })
+                    })
+                })
+                .collect()
         }
-    }
-
-    config_paths
-}
-
-fn check_toml(file_path: &Path) -> bool {
-    let toml_content = match fs::read_to_string(&file_path) {
-        Ok(content) => content,
         Err(err) => {
-            eprintln!("Error reading file: {}", err);
-            return false;
+            log::warn!("Error reading directory: {:?}", err);
+            vec![] // Return an empty Vec in case of an error
         }
     };
 
-    let deserialized_result: Result<AppChainConfig, toml::de::Error> =
-        toml::from_str(&toml_content);
-
-    match deserialized_result {
-        Ok(_) => true,
-        Err(_) => false,
-    }
+    Ok(app_names)
 }
