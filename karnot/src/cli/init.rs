@@ -1,34 +1,58 @@
-use std::fs;
+use inquire::InquireError;
+use std::{fs, io};
 
-use crate as karnot;
+use super::prompt::{get_boolean_input, get_custom_input, get_option, get_text_input};
+use crate::app::config::{AppChainConfig, ConfigVersion};
 
-use super::prompt::{
-    ask_for_app_chain_name, ask_for_base_path, ask_for_block_time, ask_for_chain_id,
-    ask_for_da_layer, ask_for_disable_fees, ask_for_fee_token, ask_for_mode,
-};
-use karnot::app::config::{AppChainConfig, ConfigVersion};
+use crate::app::config::{DALayer, RollupMode};
+use crate::cli::constants::{MADARA_REPO_NAME, MADARA_REPO_ORG};
+use crate::utils::github::{get_latest_commit_hash, GithubError};
+use strum::IntoEnumIterator;
+use thiserror::Error;
+use crate::utils::paths::{get_app_chains_home, get_app_home};
 
-use serde::Deserialize;
-use crate::app::utils::{get_app_home};
-
-pub fn init() {
-    generate_config();
-    println!("✅ New app chain initialised.");
+#[derive(Debug, Error)]
+pub enum InitError {
+    #[error("Failed to get input: {0}")]
+    FailedToGetInout(#[from] InquireError),
+    #[error("Failed to write config: {0}")]
+    FailedToWriteConfig(#[from] io::Error),
+    #[error("Failed to get latest commit hash: {0}")]
+    FailedToGetLatestCommitHash(#[from] GithubError),
 }
 
-fn generate_config() {
-    let app_chain = ask_for_app_chain_name().unwrap();
-    let base_path = ask_for_base_path().unwrap();
-    let chain_id = ask_for_chain_id().unwrap();
-    let mode = ask_for_mode().unwrap();
-    let da_layer = ask_for_da_layer().unwrap();
-    let block_time = ask_for_block_time().unwrap();
-    let disable_fees = ask_for_disable_fees().unwrap();
-    let fee_token = ask_for_fee_token().unwrap();
-    let madara_version = get_latest_madara_commit_hash();
+pub fn init() {
+    let config = match generate_config() {
+        Ok(config) => config,
+        Err(err) => {
+            panic!("Failed to get input: {}", err);
+        }
+    };
+    match write_config(&config) {
+        Ok(config) => config,
+        Err(err) => {
+            panic!("Failed to write config: {}", err);
+        }
+    };
+    log::info!("✅ New app chain initialised.");
+}
+
+fn generate_config() -> Result<AppChainConfig, InitError> {
+    let app_chain = get_text_input("Enter you app chain name:", Some("karnot"))?;
+    let binding = get_app_chains_home().unwrap().join(format!("{}/data", app_chain));
+    let default_base_path = binding.to_str().unwrap();
+    let base_path = get_text_input("Enter base path for data directory of your app chain:", Some(default_base_path))?;
+    let chain_id = get_text_input("Enter chain id for your app chain:", Some("KARNOT"))?;
+    let mode = get_option("Select mode for your app chain:", RollupMode::iter().collect::<Vec<_>>())?;
+    let da_layer = get_option("Select DA layer for your app chain:", DALayer::iter().collect::<Vec<_>>())?;
+    let block_time =
+        get_custom_input::<u64>("Enter block time of chain:", Some(1000), Some("Time in ms (e.g, 1000, 2000)."))?;
+    let disable_fees = get_boolean_input("Do you want to disable fees for your app chain:", Some(false))?;
+    let fee_token = get_text_input("Enter fee token:", Some("STRK"))?;
+    let madara_version = get_latest_commit_hash(MADARA_REPO_ORG, MADARA_REPO_NAME)?;
     let config_version = ConfigVersion::Version1;
 
-    let config = AppChainConfig {
+    Ok(AppChainConfig {
         app_chain,
         base_path,
         chain_id,
@@ -39,55 +63,20 @@ fn generate_config() {
         fee_token,
         madara_version,
         config_version,
-    };
-
-    write_config(&config);
+    })
 }
 
-fn write_config(config: &AppChainConfig) {
+fn write_config(config: &AppChainConfig) -> Result<(), InitError> {
     let toml = config.to_toml().unwrap();
     let config_file = format!("{}-config.toml", config.app_chain);
     let app_home = get_app_home(&config.app_chain).unwrap();
     let full_file_path= app_home.join(config_file);
 
     if let Err(err) = fs::write(&full_file_path, toml) {
-        eprintln!("Error writing to file: {}", err);
+        panic!("Error writing to file: {}", err);
     } else {
         println!("Data written to file successfully!");
     }
-}
 
-#[derive(Debug, Deserialize)]
-struct Commit {
-    sha: String,
-}
-
-fn get_latest_madara_commit_hash() -> String {
-    let repo_owner = "keep-starknet-strange";
-    let repo_name = "madara";
-    let github_api_url = format!(
-        "https://api.github.com/repos/{}/{}/commits",
-        repo_owner, repo_name
-    );
-
-    let mut hash = String::new();
-
-    // Init Tokio runtime
-    let tokio_rt = tokio::runtime::Runtime::new().expect("Unable to create Tokio runtime");
-    tokio_rt.block_on(async {
-        match reqwest::get(&github_api_url).await {
-            Ok(response) => {
-                if let Ok(commits) = response.json::<Vec<Commit>>().await {
-                    if let Some(latest_commit) = commits.first() {
-                        hash = latest_commit.sha.clone();
-                    }
-                }
-            }
-            Err(err) => {
-                eprintln!("Error: {}", err);
-            }
-        }
-    });
-
-    hash
+    Ok(())
 }

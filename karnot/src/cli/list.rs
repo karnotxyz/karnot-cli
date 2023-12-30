@@ -1,10 +1,7 @@
 use std::{fs};
-
-use crate as karnot;
-
-use karnot::app::config::AppChainConfig;
+use crate::app::config::AppChainConfig;
 use std::path::{Path};
-use crate::app::utils::{get_app_chains_home};
+use crate::utils::paths::{get_app_chains_home};
 
 pub fn list() {
     let apps = get_apps_list();
@@ -23,9 +20,7 @@ pub fn get_apps_list() -> Vec<String> {
                 let file_name = entry.file_name().into_string().unwrap_or_default();
                 let file_path = entry.path().join(format!("{}-config.toml",file_name));
                 if check_toml(&file_path) {
-                    if let Some(path_str) = file_path.to_str() {
                         config_paths.push(file_name);
-                    }
                 }
             } else {
                 eprintln!("Error reading directory: {:?}", app_configs)

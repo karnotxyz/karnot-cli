@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use karnot;
+use karnot_cli::cli;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -22,9 +22,9 @@ fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
-        Some(Commands::Init) => karnot::cli::init::init(),
-        Some(Commands::List) => karnot::cli::list::list(),
-        Some(Commands::Run) => karnot::cli::run::run(),
+        Some(Commands::Init) => cli::init::init(),
+        Some(Commands::List) => cli::list::list(),
+        Some(Commands::Run) => cli::run::run(),
         None => println!("Use --help to see the complete list of available commands"),
     }
 }

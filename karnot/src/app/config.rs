@@ -36,6 +36,7 @@ pub enum RollupMode {
 pub enum DALayer {
     Avail,
     Celestia,
+    Ethereum,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

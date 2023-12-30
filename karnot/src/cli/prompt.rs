@@ -1,58 +1,35 @@
-use inquire::error::InquireResult;
-use inquire::{Confirm, CustomType, InquireError, Select, Text};
-use strum::IntoEnumIterator;
+use inquire::{Confirm, CustomType, InquireError, Select};
+use std::fmt::Display;
+use std::str::FromStr;
 
-use crate as karnot;
-
-use karnot::app::config::{DALayer, RollupMode};
-use crate::cli::list::get_apps_list;
-
-pub fn ask_for_app_chain_name() -> Result<String, InquireError> {
-    Text::new("Enter you app chain name:")
-        .with_default("karnot")
-        .prompt()
+pub fn get_text_input(message: &str, default: Option<&str>) -> Result<String, InquireError> {
+    let default = default.map(|s| s.to_string());
+    get_custom_input::<String>(message, default, None)
 }
 
-pub fn select_app_chain() -> Result<String, InquireError> {
-    let app_chains = get_apps_list();
-    Select::new("Select app you want to run:", app_chains).prompt()
+pub fn get_custom_input<T: Clone + FromStr + Display>(
+    message: &str,
+    default: Option<T>,
+    help_message: Option<&str>,
+) -> Result<T, InquireError> {
+    let mut prompt = CustomType::new(message);
+    if let Some(default) = default {
+        prompt = prompt.with_default(default);
+    }
+    if let Some(help_message) = help_message {
+        prompt = prompt.with_help_message(help_message);
+    }
+    prompt.prompt()
 }
 
-pub fn ask_for_base_path() -> Result<String, InquireError> {
-    Text::new("Enter base path for data directory of your app chain:")
-        .with_default("karnot")
-        .prompt()
+pub fn get_option<T: Display>(message: &str, options: Vec<T>) -> Result<T, InquireError> {
+    Select::new(message, options).prompt()
 }
 
-pub fn ask_for_chain_id() -> Result<String, InquireError> {
-    Text::new("Enter chain id for your app chain:")
-        .with_default("karnot")
-        .prompt()
-}
-
-pub fn ask_for_mode() -> Result<RollupMode, InquireError> {
-    let modes = RollupMode::iter().collect::<Vec<_>>();
-    Select::new("Select mode for your app chain:", modes).prompt()
-}
-
-pub fn ask_for_da_layer() -> Result<DALayer, InquireError> {
-    let da = DALayer::iter().collect::<Vec<_>>();
-    Select::new("Select mode for your app chain:", da).prompt()
-}
-
-pub fn ask_for_block_time() -> InquireResult<u64> {
-    CustomType::new("Enter block time of chain:")
-        .with_default(6000)
-        .with_help_message("Time in ms (e.g, 1000, 2000)")
-        .prompt()
-}
-
-pub fn ask_for_disable_fees() -> Result<bool, InquireError> {
-    Confirm::new("Do you want to disable fees for your app chain:")
-        .with_default(true)
-        .prompt()
-}
-
-pub fn ask_for_fee_token() -> Result<String, InquireError> {
-    Text::new("Enter fee token:").with_default("KAR").prompt()
+pub fn get_boolean_input(message: &str, default: Option<bool>) -> Result<bool, InquireError> {
+    let mut prompt = Confirm::new(message);
+    if let Some(default) = default {
+        prompt = prompt.with_default(default);
+    }
+    prompt.prompt()
 }

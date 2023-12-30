@@ -1,59 +1,44 @@
-use crate as karnot;
 use dirs;
+use std::fs;
+use whoami;
+use crate::app::config::AppChainConfig;
+use crate::utils::paths::{get_app_home, get_karnot_home};
+use crate::cli::list::get_apps_list;
+use crate::cli::prompt::get_option;
+use crate::utils::cmd::execute_cmd;
+use crate::utils::madara;
 
 pub fn run() {
-    let app = select_app_chain().unwrap();
+    let ac = get_apps_list();
+    let app = get_option("Select the app chain:", ac).unwrap();
     let app_chain: &str = &app;
 
-    karnot::app::madara::clone_madara_and_build_repo();
+    madara::clone_madara_and_build_repo().unwrap();
     setup_madara(&app_chain);
 }
 
-use std::fs;
-use std::io;
-use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
-use whoami;
-use crate::app::config::AppChainConfig;
-use crate::app::utils::{get_app_home, get_karnot_home, get_templates_dir};
-use crate::cli::prompt::select_app_chain;
-
-
 fn setup_madara(app_chain: &str) {
     let madara = get_karnot_home().unwrap().join("madara");
-    println!("{:?}", madara);
+    let config = app_config(&app_chain).unwrap();
+    let base_path = format!("--base-path={}", config.base_path);
+    execute_cmd(
+        "cargo",
+        &["run", "--release", "setup", "--chain=dev", "--from-remote", &base_path],
+        &madara)
+        .unwrap();
 
-    let mut command = Command::new("cargo");
-    let output = command
-        .current_dir(&madara)
-        .arg("run")
-        .arg("--release")
-        .arg("setup")
-        .arg("--chain=dev")
-        .arg("--from-remote")
-        .arg("--base-path=/Users/ashukla/.karnot/app-chains/karnot/data")
-        .stdout(Stdio::inherit())
-        .stderr(Stdio::inherit())
-        .output();
-
-    run_madara(&madara);
+    run_madara(&app_chain);
 }
 
-fn run_madara(madara: &PathBuf) {
-    let madara_binary = madara.join("target/release/madara");
-    // madara  --base-path=/Users/ashukla/epf/stark --rpc-cors=all --chain=dev --force-authoring   --rpc-external --rpc-methods=unsafe
-    let output = Command::new(madara_binary)
-        .arg("--base-path=/Users/ashukla/.karnot/app-chains/karnot/data")
-        .arg("--rpc-cors=all")
-        .arg("--chain=dev")
-        .arg("--force-authoring")
-        .arg("--rpc-external")
-        .arg("--rpc-methods=unsafe")
-        .stdout(Stdio::inherit())
-        .stderr(Stdio::inherit())
-        .output();
-
-    println!("{:?}", output);
+fn run_madara(app_chain: &str) {
+    let madara = get_karnot_home().unwrap().join("madara");
+    let config = app_config(&app_chain).unwrap();
+    let base_path = format!("--base-path={}", config.base_path);
+    execute_cmd(
+        "./target/release/madara",
+        &["--rpc-cors=all", "--chain=dev", "--force-authoring", "--rpc-external", "--rpc-methods=unsafe", &base_path],
+        &madara
+    ).unwrap();
 }
 
 fn app_config(app: &str) -> Result<AppChainConfig, toml::de::Error> {
