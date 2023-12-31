@@ -13,7 +13,7 @@ path = "src/main.rs"
 clap = { version = "4.4.11", features = ["derive"] }
 dirs = "5.0.1"
 inquire = "0.6.2"
-serde = { version = "1.0.193",  features = ["derive"] }
+serde = { version = "1.0.193", features = ["derive"] }
 strum = { version = "0.25.0", features = ["derive"] }
 strum_macros = { version = "0.25.3", features = [] }
 toml = "0.8.8"
