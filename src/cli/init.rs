@@ -44,12 +44,9 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
 
     let app_chains_home = get_app_chains_home()?;
     let binding = app_chains_home.join(format!("{}/data", app_chain));
-    let default_base_path = match binding.to_str() {
-        Some(path_str) => path_str,
-        None => "madara-data",
-    };
+    let default_base_path = binding.to_str().unwrap_or("madara-data");
 
-    let base_path = get_text_input("Enter base path for data directory of your app chain:", Some(&default_base_path))?;
+    let base_path = get_text_input("Enter base path for data directory of your app chain:", Some(default_base_path))?;
     let chain_id = get_text_input("Enter chain id for your app chain:", Some("MADARA"))?;
     let mode = get_option("Select mode for your app chain:", RollupMode::iter().collect::<Vec<_>>())?;
     let da_layer = get_option("Select DA layer for your app chain:", DALayer::iter().collect::<Vec<_>>())?;
@@ -80,7 +77,7 @@ fn write_config(config: &AppChainConfig) -> Result<(), InitError> {
     let app_home = get_app_home(&config.app_chain)?;
     let full_file_path = app_home.join(config_file);
 
-    if let Err(err) = fs::write(&full_file_path, toml) {
+    if let Err(err) = fs::write(full_file_path, toml) {
         panic!("Error writing to file: {}", err);
     } else {
         log::info!("Data written to file successfully!");

@@ -32,7 +32,7 @@ fn start_app_chain() -> Result<(), RunError> {
     let app_chain: &str = &app;
 
     madara::clone_madara_and_build_repo()?;
-    madara::setup_and_run_madara(&app_chain)?;
+    madara::setup_and_run_madara(app_chain)?;
 
     Ok(())
 }
