@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use strum::EnumIter;
+use strum_macros::Display;
 use toml::ser::Error;
 
 #[derive(Serialize, Deserialize)]
@@ -25,17 +26,35 @@ impl AppChainConfig {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, EnumIter, strum_macros::Display)]
+impl Default for AppChainConfig {
+    fn default() -> Self {
+        AppChainConfig {
+            app_chain: "".to_string(),
+            base_path: "".to_string(),
+            chain_id: "".to_string(),
+            mode: RollupMode::Sovereign,
+            da_layer: DALayer::Avail,
+            block_time: 0,
+            disable_fees: false,
+            fee_token: "".to_string(),
+            madara_version: "".to_string(),
+            config_version: ConfigVersion::Version1,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, EnumIter, Display)]
 pub enum RollupMode {
     Sovereign,
     // Validity,
     // Validium,
 }
 
-#[derive(Debug, Serialize, Deserialize, EnumIter, strum_macros::Display)]
+#[derive(Debug, Serialize, Deserialize, EnumIter, Display)]
 pub enum DALayer {
     Avail,
     Celestia,
+    Ethereum,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
