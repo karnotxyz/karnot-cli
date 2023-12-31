@@ -24,7 +24,12 @@ pub fn get_apps_list() -> Result<Vec<String>, std::io::Error> {
                 entry.ok().and_then(|entry| {
                     entry.file_name().into_string().ok().and_then(|file_name| {
                         let (_, valid) = regenerate_app_config(&file_name).unwrap_or_default();
-                        if valid { Some(file_name) } else { None }
+                        if valid {
+                            Some(file_name)
+                        } else {
+                            log::warn!("Failed to parse the give app config");
+                            None
+                        }
                     })
                 })
             })
