@@ -1,9 +1,10 @@
 use inquire::InquireError;
+use thiserror::Error;
+
 use crate::cli::list::get_apps_list;
 use crate::cli::prompt::get_option;
-use crate::utils::madara;
 use crate::utils::errors::MadaraError;
-use thiserror::Error;
+use crate::utils::madara;
 
 #[derive(Debug, Error)]
 pub enum RunError {
@@ -17,8 +18,8 @@ pub enum RunError {
 pub fn run() {
     match start_app_chain() {
         Ok(_) => {
-            println!("Madara setup successful");
-        },
+            log::info!("Madara setup successful");
+        }
         Err(err) => {
             log::error!("Failed to setup Madara: {:?}", err);
         }

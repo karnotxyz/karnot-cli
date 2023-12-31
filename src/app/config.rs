@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use strum::EnumIter;
+use strum_macros::Display;
 use toml::ser::Error;
 
 #[derive(Serialize, Deserialize)]
@@ -42,14 +43,14 @@ impl Default for AppChainConfig {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, EnumIter, strum_macros::Display)]
+#[derive(Debug, Serialize, Deserialize, EnumIter, Display)]
 pub enum RollupMode {
     Sovereign,
     // Validity,
     // Validium,
 }
 
-#[derive(Debug, Serialize, Deserialize, EnumIter, strum_macros::Display)]
+#[derive(Debug, Serialize, Deserialize, EnumIter, Display)]
 pub enum DALayer {
     Avail,
     Celestia,

@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use karnot_cli::cli;
+use madara_cli::cli;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -15,7 +15,7 @@ enum Commands {
     /// Lists all the existing App Chain configs
     List,
     /// Runs the App Chain using Madara
-    Run
+    Run,
 }
 
 fn main() {

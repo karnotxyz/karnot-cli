@@ -3,12 +3,8 @@ use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
 pub fn execute_cmd(program: &str, args: &[&str], dir: &PathBuf) -> Result<(), Error> {
-    let result = Command::new(program)
-        .current_dir(dir)
-        .args(args)
-        .stdout(Stdio::inherit())
-        .stderr(Stdio::inherit())
-        .output();
+    let result =
+        Command::new(program).current_dir(dir).args(args).stdout(Stdio::inherit()).stderr(Stdio::inherit()).output();
 
     match result {
         Ok(output) => {
@@ -18,7 +14,6 @@ pub fn execute_cmd(program: &str, args: &[&str], dir: &PathBuf) -> Result<(), Er
             } else {
                 Err(Error::new(ErrorKind::Other, "Unable to execute command"))
             }
-
         }
         Err(err) => {
             log::error!("Error executing {}", program);

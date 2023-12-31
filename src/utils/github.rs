@@ -1,9 +1,12 @@
+use std::fs;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
-use git2::{Repository};
-use serde::Deserialize;
-use crate::utils::errors::GithubError;
 
+use git2::Repository;
+use reqwest::blocking::Client;
+use serde::Deserialize;
+
+use crate::utils::errors::GithubError;
 pub const GITHUB_API_BASE_URL: &str = "https://api.github.com";
 
 #[derive(Debug, Deserialize)]
@@ -14,10 +17,8 @@ struct Commit {
 pub fn get_latest_commit_hash(org: &str, repo: &str) -> Result<String, GithubError> {
     let github_api_url = format!("{}/repos/{}/{}/commits", GITHUB_API_BASE_URL, org, repo);
 
-    let client = reqwest::blocking::Client::new();
-    let response = client.get(&github_api_url)
-        .header("User-Agent", "reqwest")
-        .send();
+    let client = Client::new();
+    let response = client.get(&github_api_url).header("User-Agent", "reqwest").send();
 
     return match response {
         Ok(response) => match response.json::<Vec<Commit>>() {
@@ -37,13 +38,24 @@ pub fn git_clone(url: &str, path: &PathBuf) -> Result<(), GithubError> {
             // Check if the repository is valid
             if repo.is_empty() == Ok(false) {
                 let remote = repo.find_remote("origin")?;
-                if remote.url().unwrap_or_default() == url {
-                    return Ok(());
+                match remote.url() {
+                    Some(remote_url) => {
+                        if remote_url == url {
+                            return Ok(());
+                        }
+                    }
+                    None => (),
                 }
             }
         }
         // We will clone the repo
         Err(_) => {}
+    }
+
+    if path.exists() {
+        log::info!("Detected an issue with the Madara repository");
+        log::info!("Initiating removal and re-cloning process");
+        fs::remove_dir_all(path)?;
     }
 
     let output = Command::new("git")
@@ -65,4 +77,3 @@ pub fn git_clone(url: &str, path: &PathBuf) -> Result<(), GithubError> {
         Err(GithubError::FailedToCloneRepo)
     };
 }
-

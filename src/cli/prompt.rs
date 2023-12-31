@@ -1,6 +1,7 @@
-use inquire::{Confirm, CustomType, InquireError, Select};
 use std::fmt::Display;
 use std::str::FromStr;
+
+use inquire::{Confirm, CustomType, InquireError, Select};
 
 pub fn get_text_input(message: &str, default: Option<&str>) -> Result<String, InquireError> {
     let default = default.map(|s| s.to_string());

@@ -1,20 +1,20 @@
 use std::fs;
-use std::io::ErrorKind;
+use std::io::{Error, ErrorKind};
 use std::path::PathBuf;
 
-pub fn get_karnot_home() -> Result<PathBuf, std::io::Error> {
+pub fn get_madara_home() -> Result<PathBuf, Error> {
     if let Some(home_dir) = dirs::home_dir() {
-        let karnot_home = home_dir.join(".karnot");
-        fs::create_dir_all(&karnot_home)?;
-        return Ok(karnot_home);
+        let madara_home = home_dir.join(".madara");
+        fs::create_dir_all(&madara_home)?;
+        return Ok(madara_home);
     }
 
-    Err(std::io::Error::new(ErrorKind::NotFound, "Failed to get the home directory"))
+    Err(Error::new(ErrorKind::NotFound, "Failed to get the home directory"))
 }
 
-pub fn get_app_chains_home() -> Result<PathBuf, std::io::Error> {
-    let karnot_home = get_karnot_home()?;
-    let app_chains = karnot_home.join("app-chains");
+pub fn get_app_chains_home() -> Result<PathBuf, Error> {
+    let madara_home = get_madara_home()?;
+    let app_chains = madara_home.join("app-chains");
 
     // Creates the `app-chain` directory if not present
     fs::create_dir_all(&app_chains)?;
@@ -22,7 +22,7 @@ pub fn get_app_chains_home() -> Result<PathBuf, std::io::Error> {
     Ok(app_chains)
 }
 
-pub fn get_app_home(app: &str) -> Result<PathBuf, std::io::Error> {
+pub fn get_app_home(app: &str) -> Result<PathBuf, Error> {
     let app_chains = get_app_chains_home()?;
     let app_home = app_chains.join(app);
 
