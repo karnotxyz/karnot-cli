@@ -9,9 +9,7 @@ pub fn regenerate_app_config(app: &str) -> Result<(AppChainConfig, bool), TomlEr
     let app_config = app_home.join(format!("{}-config.toml", app));
     let toml_content = fs::read_to_string(&app_config)?;
 
-    let deserialized_result: Result<AppChainConfig, toml::de::Error> = toml::from_str(&toml_content);
-
-    match deserialized_result {
+    match toml::from_str::<AppChainConfig>(&toml_content) {
         Ok(app_chain_config) => Ok((app_chain_config, true)),
         Err(err) => Err(TomlError::FailedToParseToml(err)),
     }
