@@ -27,8 +27,7 @@ impl AppChainConfig {
     pub fn fund_msg(&self) {
         match &self.da_layer {
             DALayer::Avail { seed: _seed, public_key } => {
-                println!();
-                println!("Please fund {} with atleast 1 AVL", public_key);
+                log::info!("Please fund {} with atleast 1 AVL", public_key);
             }
             _ => {}
         }

@@ -24,3 +24,4 @@ strum_macros = { version = "0.25.3", features = [] }
 thiserror = "1.0.52"
 toml = "0.8.8"
 config = "0.13.4"
+env_logger = "0.10.1"
