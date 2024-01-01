@@ -27,7 +27,7 @@ pub fn clone_madara_and_build_repo() -> Result<(), MadaraError> {
 pub fn setup_and_run_madara(app_chain: &str) -> Result<(), MadaraError> {
     let madara_path = get_madara_home()?.join("madara");
 
-    let (config, _) = match regenerate_app_config(&app_chain) {
+    let (config, _) = match regenerate_app_config(app_chain) {
         Ok((config, valid)) => (config, valid),
         Err(err) => {
             log::error!("Failed to fetch the required app chain: {}", err);

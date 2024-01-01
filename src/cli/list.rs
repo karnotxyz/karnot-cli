@@ -18,7 +18,7 @@ pub fn list() {
 /// But return app names after validating the {app}-config.toml
 pub fn get_apps_list() -> Result<Vec<String>, io::Error> {
     let app_configs = get_app_chains_home()?;
-    let app_names: Vec<String> = match fs::read_dir(&app_configs) {
+    let app_names: Vec<String> = match fs::read_dir(app_configs) {
         Ok(entries) => entries
             .filter_map(|entry| {
                 entry.ok().and_then(|entry| {
