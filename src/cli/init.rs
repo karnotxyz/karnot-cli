@@ -62,12 +62,8 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
     let config_version = ConfigVersion::Version1;
 
     let result = match da_layer_type {
-        DALayer::Avail{ .. } => {
-            setup_and_generate_keypair(&app_chain)
-        }
-        _ => {
-            Ok(da_layer_type)
-        }
+        DALayer::Avail { .. } => setup_and_generate_keypair(&app_chain),
+        _ => Ok(da_layer_type),
     };
     let da_layer = match result {
         Ok(da_config) => da_config,

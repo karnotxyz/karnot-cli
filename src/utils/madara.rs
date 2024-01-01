@@ -20,11 +20,7 @@ pub fn clone_madara_and_build_repo() -> Result<(), MadaraError> {
             return Err(MadaraError::FailedToCloneRepo);
         }
     }
-    execute_cmd(
-        "cargo",
-        &["build", "--release"],
-        &madara_path
-    )?;
+    execute_cmd("cargo", &["build", "--release"], &madara_path)?;
 
     Ok(())
 }
@@ -52,27 +48,20 @@ pub fn setup_and_run_madara(app_chain: &str) -> Result<(), MadaraError> {
     let da_conf = format!("--da-conf={}", da_config_path);
     let base_path = format!("--base-path={}", config.base_path);
 
-    let mut args = vec!["--chain=dev", "--alice", "--force-authoring", "--rpc-cors=all", "--tx-ban-seconds=0", &base_path];
+    let mut args =
+        vec!["--chain=dev", "--alice", "--force-authoring", "--rpc-cors=all", "--tx-ban-seconds=0", &base_path];
 
     match &config.da_layer {
-        DALayer::Avail{ .. } => {
+        DALayer::Avail { .. } => {
             let avail_conf = vec!["--da-layer=avail", &da_conf];
             args.extend(avail_conf);
         }
         _ => {}
     }
 
-    execute_cmd(
-        "cargo",
-        &["run", "--release", "setup", "--chain=dev", "--from-remote", &base_path],
-        &madara_path
-    )?;
+    execute_cmd("cargo", &["run", "--release", "setup", "--chain=dev", "--from-remote", &base_path], &madara_path)?;
 
-    execute_cmd(
-        "./target/release/madara",
-        args.as_slice(),
-        &madara_path,
-    )?;
+    execute_cmd("./target/release/madara", args.as_slice(), &madara_path)?;
 
     Ok(())
 }

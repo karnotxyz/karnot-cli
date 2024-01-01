@@ -26,7 +26,7 @@ impl AppChainConfig {
     }
     pub fn fund_msg(&self) {
         match &self.da_layer {
-            DALayer::Avail { seed: _seed, public_key} => {
+            DALayer::Avail { seed: _seed, public_key } => {
                 println!();
                 println!("Please fund {} with atleast 1 AVL", public_key);
             }
@@ -61,10 +61,7 @@ pub enum RollupMode {
 
 #[derive(Debug, Serialize, Deserialize, EnumIter, Display)]
 pub enum DALayer {
-    Avail {
-        seed: String,
-        public_key: String,
-    },
+    Avail { seed: String, public_key: String },
     Celestia,
     Ethereum,
     NoDA,
