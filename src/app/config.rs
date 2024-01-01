@@ -24,6 +24,15 @@ impl AppChainConfig {
     pub fn to_toml(&self) -> Result<String, Error> {
         toml::to_string(self)
     }
+    pub fn fund_msg(&self) {
+        match &self.da_layer {
+            DALayer::Avail { seed: _seed, public_key} => {
+                println!();
+                println!("Please fund {} with atleast 1 AVL", public_key);
+            }
+            _ => {}
+        }
+    }
 }
 
 impl Default for AppChainConfig {
@@ -33,7 +42,7 @@ impl Default for AppChainConfig {
             base_path: "".to_string(),
             chain_id: "".to_string(),
             mode: RollupMode::Sovereign,
-            da_layer: DALayer::Avail,
+            da_layer: DALayer::NoDA,
             block_time: 0,
             disable_fees: false,
             fee_token: "".to_string(),
@@ -52,9 +61,13 @@ pub enum RollupMode {
 
 #[derive(Debug, Serialize, Deserialize, EnumIter, Display)]
 pub enum DALayer {
-    Avail,
+    Avail {
+        seed: String,
+        public_key: String,
+    },
     Celestia,
     Ethereum,
+    NoDA,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

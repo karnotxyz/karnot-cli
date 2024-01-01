@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use madara_cli::cli;
+use madara_cli::{cli};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]

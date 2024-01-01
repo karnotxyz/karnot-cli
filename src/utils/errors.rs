@@ -24,6 +24,8 @@ pub enum MadaraError {
     FailedToCloneRepo,
     #[error("Failed to regenerate config")]
     FailedToRegenerateConfig,
+    #[error("Failed to get DA config")]
+    FailedToGetDAConfig,
 }
 
 #[derive(Debug, Error)]

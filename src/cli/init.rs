@@ -7,6 +7,7 @@ use thiserror::Error;
 use super::prompt::{get_boolean_input, get_custom_input, get_option, get_text_input};
 use crate::app::config::{AppChainConfig, ConfigVersion, DALayer, RollupMode};
 use crate::cli::constants::{MADARA_REPO_NAME, MADARA_REPO_ORG};
+use crate::utils::avail::setup_and_generate_keypair;
 use crate::utils::errors::GithubError;
 use crate::utils::github::get_latest_commit_hash;
 use crate::utils::paths::{get_app_chains_home, get_app_home};
@@ -21,6 +22,8 @@ pub enum InitError {
     FailedToGetLatestCommitHash(#[from] GithubError),
     #[error("Failed to serialize to toml: {0}")]
     FailedToSerializeToToml(#[from] toml::ser::Error),
+    #[error("Failed to generate Avail keypair")]
+    FailedToGenerateAvailKeypair,
 }
 
 pub fn init() {
@@ -36,6 +39,7 @@ pub fn init() {
             panic!("Failed to write config: {}", err);
         }
     };
+    config.fund_msg();
     log::info!("✅ New app chain initialised.");
 }
 
@@ -49,13 +53,28 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
     let base_path = get_text_input("Enter base path for data directory of your app chain:", Some(default_base_path))?;
     let chain_id = get_text_input("Enter chain id for your app chain:", Some("MADARA"))?;
     let mode = get_option("Select mode for your app chain:", RollupMode::iter().collect::<Vec<_>>())?;
-    let da_layer = get_option("Select DA layer for your app chain:", DALayer::iter().collect::<Vec<_>>())?;
+    let da_layer_type = get_option("Select DA layer for your app chain:", DALayer::iter().collect::<Vec<_>>())?;
     let block_time =
         get_custom_input::<u64>("Enter block time of chain:", Some(1000), Some("Time in ms (e.g, 1000, 2000)."))?;
     let disable_fees = get_boolean_input("Do you want to disable fees for your app chain:", Some(false))?;
     let fee_token = get_text_input("Enter fee token:", Some("STRK"))?;
     let madara_version = get_latest_commit_hash(MADARA_REPO_ORG, MADARA_REPO_NAME)?;
     let config_version = ConfigVersion::Version1;
+
+    let result = match da_layer_type {
+        DALayer::Avail{ .. } => {
+            setup_and_generate_keypair(&app_chain)
+        }
+        _ => {
+            Ok(da_layer_type)
+        }
+    };
+    let da_layer = match result {
+        Ok(da_config) => da_config,
+        Err(_) => {
+            return Err(InitError::FailedToGenerateAvailKeypair);
+        }
+    };
 
     Ok(AppChainConfig {
         app_chain,
