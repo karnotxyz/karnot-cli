@@ -5,9 +5,9 @@ use strum::IntoEnumIterator;
 use thiserror::Error;
 
 use super::prompt::{get_boolean_input, get_custom_input, get_option, get_text_input};
-use crate::app::config::{AppChainConfig, ConfigVersion, DALayer, RollupMode};
+use crate::app::config::{AppChainConfig, ConfigVersion, RollupMode};
 use crate::cli::constants::{MADARA_REPO_NAME, MADARA_REPO_ORG};
-use crate::utils::avail::setup_and_generate_keypair;
+use crate::da::da::{DALayer, DaConfig};
 use crate::utils::errors::GithubError;
 use crate::utils::github::get_latest_commit_hash;
 use crate::utils::paths::{get_app_chains_home, get_app_home};
@@ -39,7 +39,7 @@ pub fn init() {
             panic!("Failed to write config: {}", err);
         }
     };
-    config.fund_msg();
+    fund_msg(&config.da_layer);
     log::info!("✅ New app chain initialised.");
 }
 
@@ -61,10 +61,7 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
     let madara_version = get_latest_commit_hash(MADARA_REPO_ORG, MADARA_REPO_NAME)?;
     let config_version = ConfigVersion::Version1;
 
-    let result = match da_layer_type {
-        DALayer::Avail { .. } => setup_and_generate_keypair(&app_chain),
-        _ => Ok(da_layer_type),
-    };
+    let result = da_layer_type.setup_and_generate_keypair(&app_chain);
     let da_layer = match result {
         Ok(da_config) => da_config,
         Err(_) => {
@@ -88,9 +85,7 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
 
 fn write_config(config: &AppChainConfig) -> Result<(), InitError> {
     let toml = config.to_toml()?;
-    let config_file = format!("{}-config.toml", config.app_chain);
-    let app_home = get_app_home(&config.app_chain)?;
-    let full_file_path = app_home.join(config_file);
+    let full_file_path = get_app_home(&config.app_chain)?.join(format!("{}-config.toml", config.app_chain));
 
     if let Err(err) = fs::write(full_file_path, toml) {
         panic!("Error writing to file: {}", err);
@@ -99,4 +94,13 @@ fn write_config(config: &AppChainConfig) -> Result<(), InitError> {
     }
 
     Ok(())
+}
+
+fn fund_msg(da_layer: &DALayer) {
+    match &da_layer {
+        DALayer::Avail { seed: _seed, public_key } => {
+            log::info!("Please fund {} with atleast 1 AVL (https://docs.availproject.org/about/faucet/)", public_key);
+        }
+        _ => {}
+    }
 }

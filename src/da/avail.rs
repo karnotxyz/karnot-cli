@@ -1,41 +1,29 @@
+use std::fs;
 use std::process::Stdio;
-use std::string::FromUtf8Error;
-use std::{fs, io};
 
 use serde_json::{json, Value};
-use thiserror::Error;
 
-use crate::app::config::DALayer;
+use crate::da::da::DALayer;
+use crate::da::errors::KeyGenError;
 use crate::utils::cmd::{execute_cmd, execute_cmd_stdout};
 use crate::utils::paths::{get_app_home, get_madara_home};
 
-#[derive(Debug, Error)]
-pub enum AvailKeyGenError {
-    #[error("Failed to read file: {0}")]
-    FailedToIoFilesystem(#[from] io::Error),
-    #[error("Failed to parse output: {0}")]
-    FailedToParseOutput(#[from] FromUtf8Error),
-    #[error("Failed to parse to json: {0}")]
-    FailedToParseToJson(#[from] serde_json::Error),
-}
-
-pub fn setup_and_generate_keypair(app_chain: &str) -> Result<DALayer, AvailKeyGenError> {
+pub fn setup_and_generate_avail_keypair(app_chain: &str) -> Result<DALayer, KeyGenError> {
     install_subkey()?;
     let avail = generate_keypair(app_chain)?;
 
     Ok(avail)
 }
-fn install_subkey() -> Result<(), AvailKeyGenError> {
+
+fn install_subkey() -> Result<(), KeyGenError> {
     let madara_home = get_madara_home()?;
     execute_cmd("cargo", &["install", "subkey"], &madara_home)?;
 
     Ok(())
 }
-fn generate_keypair(app_chain: &str) -> Result<DALayer, AvailKeyGenError> {
+fn generate_keypair(app_chain: &str) -> Result<DALayer, KeyGenError> {
     let madara_home = get_madara_home()?;
-    let keypair_file = format!("{}-keypair.json", app_chain);
-    let app_home = get_app_home(app_chain)?;
-    let full_file_path = app_home.join(keypair_file);
+    let full_file_path = get_app_home(app_chain)?.join(format!("{}-keypair.json", app_chain));
 
     execute_cmd("cargo", &["install", "subkey"], &madara_home)?;
 
@@ -59,10 +47,8 @@ fn generate_keypair(app_chain: &str) -> Result<DALayer, AvailKeyGenError> {
     Ok(avail)
 }
 
-fn generate_avail_connect_config(app_chain: &str, seed: &str) -> Result<(), AvailKeyGenError> {
-    let connect_file = format!("{}-avail-connect.json", app_chain);
-    let app_home = get_app_home(app_chain)?;
-    let full_file_path = app_home.join(connect_file);
+fn generate_avail_connect_config(app_chain: &str, seed: &str) -> Result<(), KeyGenError> {
+    let full_file_path = get_app_home(app_chain)?.join(format!("{}-avail-connect.json", app_chain));
 
     let avail_connect = json! ({
         "ws_provider": "wss://goldberg.avail.tools:443/ws",

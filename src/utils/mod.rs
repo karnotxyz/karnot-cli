@@ -8,5 +8,4 @@ pub mod madara;
 
 pub mod errors;
 
-pub mod avail;
 pub mod toml;

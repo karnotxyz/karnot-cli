@@ -3,6 +3,8 @@ use strum::EnumIter;
 use strum_macros::Display;
 use toml::ser::Error;
 
+use crate::da::da::DALayer;
+
 #[derive(Serialize, Deserialize)]
 pub struct AppChainConfig {
     pub app_chain: String,
@@ -23,14 +25,6 @@ pub struct AppChainConfig {
 impl AppChainConfig {
     pub fn to_toml(&self) -> Result<String, Error> {
         toml::to_string(self)
-    }
-    pub fn fund_msg(&self) {
-        match &self.da_layer {
-            DALayer::Avail { seed: _seed, public_key } => {
-                log::info!("Please fund {} with atleast 1 AVL", public_key);
-            }
-            _ => {}
-        }
     }
 }
 
@@ -56,14 +50,6 @@ pub enum RollupMode {
     Sovereign,
     // Validity,
     // Validium,
-}
-
-#[derive(Debug, Serialize, Deserialize, EnumIter, Display)]
-pub enum DALayer {
-    Avail { seed: String, public_key: String },
-    Celestia,
-    Ethereum,
-    NoDA,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
