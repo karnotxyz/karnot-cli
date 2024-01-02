@@ -85,12 +85,12 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
 
 fn write_config(config: &AppChainConfig) -> Result<(), InitError> {
     let toml = config.to_toml()?;
-    let full_file_path = get_app_home(&config.app_chain)?.join(format!("{}-config.toml", config.app_chain));
+    let file_path = get_app_home(&config.app_chain)?.join(format!("{}-config.toml", config.app_chain));
 
-    if let Err(err) = fs::write(full_file_path, toml) {
+    if let Err(err) = fs::write(file_path, toml) {
         panic!("Error writing to file: {}", err);
     } else {
-        log::info!("Data written to file successfully!");
+        log::info!("Config file saved!");
     }
 
     Ok(())

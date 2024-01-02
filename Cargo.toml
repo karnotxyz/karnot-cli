@@ -23,3 +23,5 @@ strum_macros = { version = "0.25.3", features = [] }
 thiserror = "1.0.52"
 toml = "0.8.8"
 env_logger = "0.10.1"
+hex = { version = "0.4.3", features = [] }
+sp-core = "27.0.0"
