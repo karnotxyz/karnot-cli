@@ -1,5 +1,5 @@
 use crate::cli::constants::{MADARA_REPO_NAME, MADARA_REPO_ORG};
-use crate::da::da::DALayer;
+use crate::da::da_layers::DALayer;
 use crate::utils::cmd::execute_cmd;
 use crate::utils::errors::MadaraError;
 use crate::utils::github::git_clone;
@@ -51,13 +51,10 @@ pub fn setup_and_run_madara(app_chain: &str) -> Result<(), MadaraError> {
     let mut args =
         vec!["--chain=dev", "--alice", "--force-authoring", "--rpc-cors=all", "--tx-ban-seconds=0", &base_path];
 
-    match &config.da_layer {
-        DALayer::Avail { .. } => {
-            let avail_conf = vec!["--da-layer=avail", &da_conf];
-            args.extend(avail_conf);
-        }
-        _ => {}
-    }
+    if let DALayer::Avail { .. } = &config.da_layer {
+        let avail_conf = vec!["--da-layer=avail", &da_conf];
+        args.extend(avail_conf);
+    };
 
     execute_cmd("cargo", &["run", "--release", "setup", "--chain=dev", "--from-remote", &base_path], &madara_path)?;
 

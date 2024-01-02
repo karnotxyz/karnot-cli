@@ -1,5 +1,4 @@
 use clap::{Parser, Subcommand};
-use env_logger;
 use log::LevelFilter;
 use madara_cli::cli;
 

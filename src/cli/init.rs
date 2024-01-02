@@ -7,7 +7,7 @@ use thiserror::Error;
 use super::prompt::{get_boolean_input, get_custom_input, get_option, get_text_input};
 use crate::app::config::{AppChainConfig, ConfigVersion, RollupMode};
 use crate::cli::constants::{MADARA_REPO_NAME, MADARA_REPO_ORG};
-use crate::da::da::{DALayer, DaConfig};
+use crate::da::da_layers::{DALayer, DaConfig};
 use crate::utils::errors::GithubError;
 use crate::utils::github::get_latest_commit_hash;
 use crate::utils::paths::{get_app_chains_home, get_app_home};
@@ -97,10 +97,7 @@ fn write_config(config: &AppChainConfig) -> Result<(), InitError> {
 }
 
 fn fund_msg(da_layer: &DALayer) {
-    match &da_layer {
-        DALayer::Avail { seed: _seed, public_key } => {
-            log::info!("Please fund {} with atleast 1 AVL (https://docs.availproject.org/about/faucet/)", public_key);
-        }
-        _ => {}
+    if let DALayer::Avail { seed: _seed, public_key } = &da_layer {
+        log::info!("Please fund {} with atleast 1 AVL (https://docs.availproject.org/about/faucet/)", public_key);
     }
 }

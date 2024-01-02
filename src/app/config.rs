@@ -3,7 +3,7 @@ use strum::EnumIter;
 use strum_macros::Display;
 use toml::ser::Error;
 
-use crate::da::da::DALayer;
+use crate::da::da_layers::DALayer;
 
 #[derive(Serialize, Deserialize)]
 pub struct AppChainConfig {
