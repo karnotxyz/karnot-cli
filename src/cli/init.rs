@@ -6,7 +6,7 @@ use thiserror::Error;
 
 use super::prompt::{get_boolean_input, get_custom_input, get_option, get_text_input};
 use crate::app::config::{AppChainConfig, ConfigVersion, RollupMode};
-use crate::cli::constants::{MADARA_REPO_NAME, MADARA_REPO_ORG};
+use crate::utils::constants::{APP_CONFIG_NAME, MADARA_REPO_NAME, MADARA_REPO_ORG};
 use crate::da::da_layers::{DAFactory, DALayer};
 use crate::utils::errors::GithubError;
 use crate::utils::github::get_latest_commit_hash;
@@ -85,7 +85,7 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
 
 fn write_config(config: &AppChainConfig) -> Result<(), InitError> {
     let toml = config.to_toml()?;
-    let file_path = get_app_home(&config.app_chain)?.join(format!("{}-config.toml", config.app_chain));
+    let file_path = get_app_home(&config.app_chain)?.join(APP_CONFIG_NAME);
 
     if let Err(err) = fs::write(file_path, toml) {
         panic!("Error writing to file: {}", err);

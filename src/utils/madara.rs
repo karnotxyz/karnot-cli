@@ -1,4 +1,4 @@
-use crate::cli::constants::{MADARA_REPO_NAME, MADARA_REPO_ORG};
+use crate::utils::constants::{APP_DA_CONFIG_NAME, MADARA_REPO_NAME, MADARA_REPO_ORG};
 use crate::da::da_layers::DALayer;
 use crate::utils::cmd::execute_cmd;
 use crate::utils::errors::MadaraError;
@@ -37,7 +37,7 @@ pub fn setup_and_run_madara(app_chain: &str) -> Result<(), MadaraError> {
     };
 
     let app_home = get_app_home(app_chain)?;
-    let binding = app_home.join(format!("{}-avail-connect.json", app_chain));
+    let binding = app_home.join(APP_DA_CONFIG_NAME);
     let da_config_path = match binding.to_str() {
         Some(path) => path,
         None => {
@@ -51,12 +51,12 @@ pub fn setup_and_run_madara(app_chain: &str) -> Result<(), MadaraError> {
     let mut args =
         vec!["--chain=dev", "--alice", "--force-authoring", "--rpc-cors=all", "--tx-ban-seconds=0", &base_path];
 
-    if let DALayer::Avail { .. } = &config.da_layer {
+    if let DALayer::Avail = &config.da_layer {
         let avail_conf = vec!["--da-layer=avail", &da_conf];
         args.extend(avail_conf);
     };
 
-    execute_cmd("cargo", &["run", "--release", "setup", "--chain=dev", "--from-remote", &base_path], &madara_path)?;
+    execute_cmd("./target/release/madara", &["setup", "--chain=dev", "--from-remote", &base_path], &madara_path)?;
 
     execute_cmd("./target/release/madara", args.as_slice(), &madara_path)?;
 
