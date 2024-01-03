@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand};
+use log::LevelFilter;
 use madara_cli::cli;
 
 #[derive(Parser)]
@@ -19,6 +20,8 @@ enum Commands {
 }
 
 fn main() {
+    env_logger::Builder::from_default_env().filter_level(LevelFilter::Info).init();
+
     let cli = Cli::parse();
 
     match &cli.command {

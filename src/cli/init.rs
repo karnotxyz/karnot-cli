@@ -5,8 +5,9 @@ use strum::IntoEnumIterator;
 use thiserror::Error;
 
 use super::prompt::{get_boolean_input, get_custom_input, get_option, get_text_input};
-use crate::app::config::{AppChainConfig, ConfigVersion, DALayer, RollupMode};
-use crate::cli::constants::{MADARA_REPO_NAME, MADARA_REPO_ORG};
+use crate::app::config::{AppChainConfig, ConfigVersion, RollupMode};
+use crate::da::da_layers::{DAFactory, DALayer};
+use crate::utils::constants::{APP_CONFIG_NAME, MADARA_REPO_NAME, MADARA_REPO_ORG};
 use crate::utils::errors::GithubError;
 use crate::utils::github::get_latest_commit_hash;
 use crate::utils::paths::{get_app_chains_home, get_app_home};
@@ -21,6 +22,8 @@ pub enum InitError {
     FailedToGetLatestCommitHash(#[from] GithubError),
     #[error("Failed to serialize to toml: {0}")]
     FailedToSerializeToToml(#[from] toml::ser::Error),
+    #[error("Failed to generate keypair")]
+    FailedToGenerateKeypair,
 }
 
 pub fn init() {
@@ -36,6 +39,7 @@ pub fn init() {
             panic!("Failed to write config: {}", err);
         }
     };
+    // fund_msg(&config.da_layer);
     log::info!("✅ New app chain initialised.");
 }
 
@@ -57,6 +61,14 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
     let madara_version = get_latest_commit_hash(MADARA_REPO_ORG, MADARA_REPO_NAME)?;
     let config_version = ConfigVersion::Version1;
 
+    match DAFactory::new_da(&da_layer).setup_and_generate_keypair(&app_chain) {
+        Ok(_) => (),
+        Err(err) => {
+            log::error!("Failed to generate keypair: {}", err);
+            return Err(InitError::FailedToGenerateKeypair);
+        }
+    };
+
     Ok(AppChainConfig {
         app_chain,
         base_path,
@@ -73,14 +85,12 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
 
 fn write_config(config: &AppChainConfig) -> Result<(), InitError> {
     let toml = config.to_toml()?;
-    let config_file = format!("{}-config.toml", config.app_chain);
-    let app_home = get_app_home(&config.app_chain)?;
-    let full_file_path = app_home.join(config_file);
+    let file_path = get_app_home(&config.app_chain)?.join(APP_CONFIG_NAME);
 
-    if let Err(err) = fs::write(full_file_path, toml) {
+    if let Err(err) = fs::write(file_path, toml) {
         panic!("Error writing to file: {}", err);
     } else {
-        log::info!("Data written to file successfully!");
+        log::info!("Config file saved!");
     }
 
     Ok(())
