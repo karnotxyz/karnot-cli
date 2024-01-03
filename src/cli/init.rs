@@ -6,8 +6,8 @@ use thiserror::Error;
 
 use super::prompt::{get_boolean_input, get_custom_input, get_option, get_text_input};
 use crate::app::config::{AppChainConfig, ConfigVersion, RollupMode};
-use crate::utils::constants::{APP_CONFIG_NAME, MADARA_REPO_NAME, MADARA_REPO_ORG};
 use crate::da::da_layers::{DAFactory, DALayer};
+use crate::utils::constants::{APP_CONFIG_NAME, MADARA_REPO_NAME, MADARA_REPO_ORG};
 use crate::utils::errors::GithubError;
 use crate::utils::github::get_latest_commit_hash;
 use crate::utils::paths::{get_app_chains_home, get_app_home};

@@ -22,7 +22,10 @@ impl DaConfig for AvailConfig {
             panic!("Error writing to file: {}", err);
         } else {
             log::info!("Secret phrase stored in app home: {}", file_path_str);
-            log::info!("Please fund {} with atleast 1 AVL (https://docs.availproject.org/about/faucet/)", pair.public());
+            log::info!(
+                "Please fund {} with atleast 1 AVL (https://docs.availproject.org/about/faucet/)",
+                pair.public()
+            );
         }
 
         generate_config(app_chain, &seed_str)?;
