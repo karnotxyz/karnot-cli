@@ -1,29 +1,29 @@
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumIter};
 
-use crate::da::avail::generate_avail_keypair;
+use crate::da::avail::AvailConfig;
 use crate::da::errors::KeyGenError;
+use crate::da::no_da::NoDAConfig;
 
 #[derive(Debug, Serialize, Deserialize, EnumIter, Display)]
 pub enum DALayer {
-    Avail { seed: String, public_key: String },
+    Avail,
     Celestia,
     Ethereum,
     NoDA,
 }
 
 pub trait DaConfig {
-    fn setup_and_generate_keypair(&self, app_chain: &str) -> Result<DALayer, KeyGenError>;
+    fn setup_and_generate_keypair(&self, app_chain: &str) -> Result<(), KeyGenError>;
 }
 
-impl DaConfig for DALayer {
-    fn setup_and_generate_keypair(&self, app_chain: &str) -> Result<DALayer, KeyGenError> {
-        match self {
-            DALayer::Avail { .. } => generate_avail_keypair(app_chain),
-            _ => {
-                log::warn!("DA layer implementation unavailable, falling back to NoDA");
-                Ok(DALayer::NoDA)
-            }
+pub struct DAFactory;
+
+impl DAFactory {
+    pub fn new_da(da: &DALayer) -> Box<dyn DaConfig> {
+        match da {
+            DALayer::Avail => Box::new(AvailConfig { seed: "".to_string(), public_key: "".to_string() }),
+            _ => Box::new(NoDAConfig {}),
         }
     }
 }

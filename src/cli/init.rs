@@ -7,7 +7,7 @@ use thiserror::Error;
 use super::prompt::{get_boolean_input, get_custom_input, get_option, get_text_input};
 use crate::app::config::{AppChainConfig, ConfigVersion, RollupMode};
 use crate::cli::constants::{MADARA_REPO_NAME, MADARA_REPO_ORG};
-use crate::da::da_layers::{DALayer, DaConfig};
+use crate::da::da_layers::{DAFactory, DALayer};
 use crate::utils::errors::GithubError;
 use crate::utils::github::get_latest_commit_hash;
 use crate::utils::paths::{get_app_chains_home, get_app_home};
@@ -22,8 +22,8 @@ pub enum InitError {
     FailedToGetLatestCommitHash(#[from] GithubError),
     #[error("Failed to serialize to toml: {0}")]
     FailedToSerializeToToml(#[from] toml::ser::Error),
-    #[error("Failed to generate Avail keypair")]
-    FailedToGenerateAvailKeypair,
+    #[error("Failed to generate keypair")]
+    FailedToGenerateKeypair,
 }
 
 pub fn init() {
@@ -39,7 +39,7 @@ pub fn init() {
             panic!("Failed to write config: {}", err);
         }
     };
-    fund_msg(&config.da_layer);
+    // fund_msg(&config.da_layer);
     log::info!("✅ New app chain initialised.");
 }
 
@@ -53,7 +53,7 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
     let base_path = get_text_input("Enter base path for data directory of your app chain:", Some(default_base_path))?;
     let chain_id = get_text_input("Enter chain id for your app chain:", Some("MADARA"))?;
     let mode = get_option("Select mode for your app chain:", RollupMode::iter().collect::<Vec<_>>())?;
-    let da_layer_type = get_option("Select DA layer for your app chain:", DALayer::iter().collect::<Vec<_>>())?;
+    let da_layer = get_option("Select DA layer for your app chain:", DALayer::iter().collect::<Vec<_>>())?;
     let block_time =
         get_custom_input::<u64>("Enter block time of chain:", Some(1000), Some("Time in ms (e.g, 1000, 2000)."))?;
     let disable_fees = get_boolean_input("Do you want to disable fees for your app chain:", Some(false))?;
@@ -61,11 +61,11 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
     let madara_version = get_latest_commit_hash(MADARA_REPO_ORG, MADARA_REPO_NAME)?;
     let config_version = ConfigVersion::Version1;
 
-    let result = da_layer_type.setup_and_generate_keypair(&app_chain);
-    let da_layer = match result {
-        Ok(da_config) => da_config,
-        Err(_) => {
-            return Err(InitError::FailedToGenerateAvailKeypair);
+    match DAFactory::new_da(&da_layer).setup_and_generate_keypair(&app_chain) {
+        Ok(_) => (),
+        Err(err) => {
+            log::error!("Failed to generate keypair: {}", err);
+            return Err(InitError::FailedToGenerateKeypair);
         }
     };
 
@@ -94,10 +94,4 @@ fn write_config(config: &AppChainConfig) -> Result<(), InitError> {
     }
 
     Ok(())
-}
-
-fn fund_msg(da_layer: &DALayer) {
-    if let DALayer::Avail { seed: _seed, public_key } = &da_layer {
-        log::info!("Please fund {} with atleast 1 AVL (https://docs.availproject.org/about/faucet/)", public_key);
-    }
 }
