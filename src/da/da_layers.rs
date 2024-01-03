@@ -22,7 +22,7 @@ pub struct DAFactory;
 impl DAFactory {
     pub fn new_da(da: &DALayer) -> Box<dyn DaConfig> {
         match da {
-            DALayer::Avail => Box::new(AvailConfig { seed: "".to_string(), public_key: "".to_string() }),
+            DALayer::Avail => Box::new(AvailConfig {}),
             _ => Box::new(NoDAConfig {}),
         }
     }

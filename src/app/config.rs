@@ -28,23 +28,6 @@ impl AppChainConfig {
     }
 }
 
-impl Default for AppChainConfig {
-    fn default() -> Self {
-        AppChainConfig {
-            app_chain: "".to_string(),
-            base_path: "".to_string(),
-            chain_id: "".to_string(),
-            mode: RollupMode::Sovereign,
-            da_layer: DALayer::NoDA,
-            block_time: 0,
-            disable_fees: false,
-            fee_token: "".to_string(),
-            madara_version: "".to_string(),
-            config_version: ConfigVersion::Version1,
-        }
-    }
-}
-
 #[derive(Debug, Serialize, Deserialize, EnumIter, Display)]
 pub enum RollupMode {
     Sovereign,
