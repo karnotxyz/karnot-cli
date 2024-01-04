@@ -17,6 +17,8 @@ enum Commands {
     List,
     /// Runs the App Chain using Madara
     Run,
+    /// Runs the L2 explorer
+    Explorer,
 }
 
 fn main() {
@@ -28,6 +30,7 @@ fn main() {
         Some(Commands::Init) => cli::init::init(),
         Some(Commands::List) => cli::list::list(),
         Some(Commands::Run) => cli::run::run(),
+        Some(Commands::Explorer) => cli::explorer::explorer(),
         None => log::info!("Use --help to see the complete list of available commands"),
     }
 }

@@ -11,3 +11,5 @@ pub mod errors;
 pub mod toml;
 
 pub mod constants;
+
+pub mod docker;
