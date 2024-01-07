@@ -1,6 +1,6 @@
 use crate::da::da_layers::DALayer;
 use crate::utils::cmd::execute_cmd;
-use crate::utils::constants::{APP_DA_CONFIG_NAME, MADARA_REPO_NAME, MADARA_REPO_ORG};
+use crate::utils::constants::{APP_DA_CONFIG_NAME, BRANCH_NAME, KARNOT_REPO_ORG, MADARA_REPO_NAME};
 use crate::utils::errors::MadaraError;
 use crate::utils::github::git_clone;
 use crate::utils::paths::{get_app_home, get_madara_home};
@@ -8,10 +8,10 @@ use crate::utils::toml::regenerate_app_config;
 pub const GITHUB_BASE_URL: &str = "https://github.com";
 
 pub fn clone_madara_and_build_repo() -> Result<(), MadaraError> {
-    let repo_url = format!("{}/{}/{}", GITHUB_BASE_URL, MADARA_REPO_ORG, MADARA_REPO_NAME);
+    let repo_url = format!("{}/{}/{}", GITHUB_BASE_URL, KARNOT_REPO_ORG, MADARA_REPO_NAME);
     let madara_path = get_madara_home()?.join("madara");
 
-    match git_clone(&repo_url, &madara_path) {
+    match git_clone(&repo_url, &madara_path, Some(BRANCH_NAME)) {
         Ok(_) => {
             log::info!("Successfully cloned Madara repo");
         }
