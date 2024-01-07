@@ -9,12 +9,12 @@ use crate::da::da_layers::DALayer;
 pub struct AppChainConfig {
     pub app_chain: String,
     pub base_path: String,
-    pub chain_id: String,
+    // pub chain_id: String,
     pub mode: RollupMode,
     pub da_layer: DALayer,
-    pub block_time: u64,
-    pub disable_fees: bool,
-    pub fee_token: String,
+    // pub block_time: u64,
+    // pub disable_fees: bool,
+    // pub fee_token: String,
     /// Stores commit hash of madara app chain build
     pub madara_version: String,
     /// Maintains version of config, will help in handling edge

@@ -32,7 +32,7 @@ pub fn get_latest_commit_hash(org: &str, repo: &str) -> Result<String, GithubErr
     };
 }
 
-pub fn git_clone(url: &str, path: &PathBuf) -> Result<(), GithubError> {
+pub fn git_clone(url: &str, path: &PathBuf, branch: Option<&str>) -> Result<(), GithubError> {
     if let Ok(repo) = Repository::open(path) {
         // Check if the repository is valid
         if repo.is_empty() == Ok(false) {
@@ -51,14 +51,15 @@ pub fn git_clone(url: &str, path: &PathBuf) -> Result<(), GithubError> {
         fs::remove_dir_all(path)?;
     }
 
-    let output = Command::new("git")
-        .arg("clone")
-        .arg("--progress")
-        .arg(url)
-        .arg(path)
-        .stdout(Stdio::inherit())
-        .stderr(Stdio::inherit())
-        .output()?;
+    let mut cmd = Command::new("git");
+    cmd.arg("clone").arg("--progress").arg(url).arg(path).stdout(Stdio::inherit()).stderr(Stdio::inherit());
+
+    if let Some(branch) = branch {
+        let clone_branch = format!("--branch={}", branch);
+        cmd.arg(clone_branch);
+    }
+
+    let output = cmd.output()?;
 
     let status = output.status;
 
