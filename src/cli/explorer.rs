@@ -1,4 +1,4 @@
-use bollard::models::{HostConfig,PortBinding};
+use bollard::models::{HostConfig, PortBinding};
 use rand::distributions::Alphanumeric;
 use rand::Rng;
 
@@ -24,10 +24,7 @@ pub fn explorer() {
     let mut port_bindings = HashMap::new();
     port_bindings.insert(
         "4000/tcp".to_string(),
-        Some(vec![PortBinding {
-            host_ip: Some("0.0.0.0".to_string()),
-            host_port: Some("4000".to_string()),
-        }]),
+        Some(vec![PortBinding { host_ip: Some("0.0.0.0".to_string()), host_port: Some("4000".to_string()) }]),
     );
 
     let host_config = HostConfig { port_bindings: Some(port_bindings), ..Default::default() };

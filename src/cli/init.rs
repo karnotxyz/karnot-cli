@@ -64,14 +64,7 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
         }
     };
 
-    Ok(AppChainConfig {
-        app_chain,
-        base_path,
-        mode,
-        da_layer,
-        madara_version,
-        config_version,
-    })
+    Ok(AppChainConfig { app_chain, base_path, mode, da_layer, madara_version, config_version })
 }
 
 fn write_config(config: &AppChainConfig) -> Result<(), InitError> {
