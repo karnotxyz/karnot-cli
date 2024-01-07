@@ -44,6 +44,7 @@ async fn pull_and_start_docker_image(
         .try_collect::<Vec<_>>()
         .await?;
 
+
     let config = Config { image: Some(image), tty: Some(true), env, host_config, ..Default::default() };
 
     let container_option = Some(CreateContainerOptions { name: container_name, ..Default::default() });
