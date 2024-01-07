@@ -51,14 +51,8 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
     let default_base_path = binding.to_str().unwrap_or("madara-data");
 
     let base_path = get_text_input("Enter base path for data directory of your app chain:", Some(default_base_path))?;
-    // let chain_id = get_text_input("Enter chain id for your app chain:", Some("MADARA"))?;
     let mode = get_option("Select mode for your app chain:", RollupMode::iter().collect::<Vec<_>>())?;
     let da_layer = get_option("Select DA layer for your app chain:", DALayer::iter().collect::<Vec<_>>())?;
-    // let block_time =
-    //     get_custom_input::<u64>("Enter block time of chain:", Some(1000), Some("Time in ms (e.g,
-    // 1000, 2000)."))?; let disable_fees = get_boolean_input("Do you want to disable fees for your
-    // app chain:", Some(false))?; let fee_token = get_text_input("Enter fee token:",
-    // Some("STRK"))?;
     let madara_version = get_latest_commit_hash(MADARA_REPO_ORG, MADARA_REPO_NAME)?;
     let config_version = ConfigVersion::Version1;
 
@@ -73,12 +67,8 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
     Ok(AppChainConfig {
         app_chain,
         base_path,
-        // chain_id,
         mode,
         da_layer,
-        // block_time,
-        // disable_fees,
-        // fee_token,
         madara_version,
         config_version,
     })
