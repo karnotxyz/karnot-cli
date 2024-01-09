@@ -4,9 +4,9 @@ A command-line tool for rapid deployment of Madara app chains.
 
 ## Dependencies
 
-1. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-2. [Rust](https://doc.rust-lang.org/book/ch01-01-installation.html)
-3. [Docker](https://docs.docker.com/desktop/)
+There are a few dependencies that need to be installed to smoothly `madara-cli`
+
+[Installing dependencies] (./docs/setup.md)
 
 ## Quick Start
 
@@ -26,19 +26,19 @@ A command-line tool for rapid deployment of Madara app chains.
 3. Initialize a new app chain. Ensure to fund the logged account, especially if you've chosen Avail as your DA Layer.
 
    ```shell
-      ./target/release/madara-cli init  
+      ./target/release/madara init  
    ```
 
 4. Run your app chain:
 
    ```shell
-      ./target/release/madara-cli run
+      ./target/release/madara run
    ```
 
 5. Optionally, explore the StarkScan explorer. Accessible at http://localhost:4000.
 
    ```shell
-      ./target/release/madara-cli explorer
+      ./target/release/madara explorer
    ```
    
 Congratulations! You now have a custom madara app running.

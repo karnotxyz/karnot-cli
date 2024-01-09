@@ -58,7 +58,7 @@ solved at this step.
 
 If logging out does not help, restarting the computer should.
 
-**There are few more dependencies required by `madara` to build various crates and related dependencies**.
+**Additionally, there are a few more dependencies required by madara for building various crates and related dependencies.**.
 
 ## `Ubuntu`
 
@@ -75,3 +75,26 @@ sudo apt install clang
 sudo apt install protobuf-compiler
 ```
 
+## `MacOS`
+
+Verify `brew` installation:
+
+```bash
+brew --version
+Homebrew 4.2.2
+```
+If brew is not found, install using following command:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Then install the following:
+
+```bash
+brew install pkg-config
+brew install openssl
+brew install protobuf
+```
+
+**Make sure to follow these instructions to ensure a smooth setup for `madara`.**
