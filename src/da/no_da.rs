@@ -1,11 +1,15 @@
 pub struct NoDAConfig;
 
-use crate::da::da_layers::DaConfig;
-use crate::da::errors::KeyGenError;
+use crate::app::config::AppChainConfig;
+use crate::da::da_layers::{DaClient, DaError};
 
-impl DaConfig for NoDAConfig {
-    fn setup_and_generate_keypair(&self, app_chain: &str) -> Result<(), KeyGenError> {
-        log::info!("Launching {} without any DA mode", app_chain);
+impl DaClient for NoDAConfig {
+    fn setup_and_generate_keypair(&self, config: &AppChainConfig) -> Result<(), DaError> {
+        log::info!("Launching {} without any DA mode", config.app_chain);
+        Ok(())
+    }
+
+    fn confirm_minimum_balance(&self, config: &AppChainConfig) -> Result<(), DaError> {
         Ok(())
     }
 }

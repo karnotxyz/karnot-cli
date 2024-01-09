@@ -1,3 +1,4 @@
+use std::ffi::OsString;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -26,6 +27,8 @@ pub enum MadaraError {
     FailedToRegenerateConfig,
     #[error("Failed to get DA config")]
     FailedToGetDAConfig,
+    #[error("Unable to fetch remote")]
+    FailedToConvertToString(OsString),
 }
 
 #[derive(Debug, Error)]

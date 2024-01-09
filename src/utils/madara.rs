@@ -1,3 +1,4 @@
+use crate::app::config::AppChainConfig;
 use crate::da::da_layers::DALayer;
 use crate::utils::cmd::execute_cmd;
 use crate::utils::constants::{APP_DA_CONFIG_NAME, BRANCH_NAME, KARNOT_REPO_ORG, MADARA_REPO_NAME};
@@ -20,23 +21,15 @@ pub fn clone_madara_and_build_repo() -> Result<(), MadaraError> {
             return Err(MadaraError::FailedToCloneRepo);
         }
     }
-    execute_cmd("cargo", &["build", "--release"], &madara_path)?;
+    execute_cmd("cargo", &["build", "--release", "--features", "avail", "--features", "celestia"], &madara_path)?;
 
     Ok(())
 }
 
-pub fn setup_and_run_madara(app_chain: &str) -> Result<(), MadaraError> {
+pub fn setup_and_run_madara(config: AppChainConfig) -> Result<(), MadaraError> {
     let madara_path = get_madara_home()?.join("madara");
 
-    let (config, _) = match regenerate_app_config(app_chain) {
-        Ok((config, valid)) => (config, valid),
-        Err(err) => {
-            log::error!("Failed to fetch the required app chain: {}", err);
-            return Err(MadaraError::FailedToRegenerateConfig);
-        }
-    };
-
-    let app_home = get_app_home(app_chain)?;
+    let app_home = get_app_home(config.app_chain.as_str())?;
     let binding = app_home.join(APP_DA_CONFIG_NAME);
     let da_config_path = match binding.to_str() {
         Some(path) => path,
@@ -56,7 +49,17 @@ pub fn setup_and_run_madara(app_chain: &str) -> Result<(), MadaraError> {
         args.extend(avail_conf);
     };
 
-    execute_cmd("./target/release/madara", &["setup", "--chain=dev", "--from-remote", &base_path], &madara_path)?;
+    let config_path = madara_path
+        .join("configs")
+        .into_os_string()
+        .into_string()
+        .map_err(|e| MadaraError::FailedToConvertToString(e))?;
+
+    execute_cmd(
+        "./target/release/madara",
+        &["setup", "--chain=dev", "--from-local", config_path.as_str(), &base_path],
+        &madara_path,
+    )?;
 
     execute_cmd("./target/release/madara", args.as_slice(), &madara_path)?;
 
