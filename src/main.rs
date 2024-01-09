@@ -22,7 +22,12 @@ enum Commands {
 }
 
 fn main() {
-    env_logger::Builder::from_default_env().filter_level(LevelFilter::Info).init();
+    env_logger::Builder::from_default_env()
+        .filter_level(LevelFilter::Info)
+        .format_timestamp(None)
+        .format_level(false)
+        .format_target(false)
+        .init();
 
     let cli = Cli::parse();
 

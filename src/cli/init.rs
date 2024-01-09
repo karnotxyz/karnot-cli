@@ -39,7 +39,8 @@ pub fn init() {
             panic!("Failed to write config: {}", err);
         }
     };
-    // fund_msg(&config.da_layer);
+
+    log::info!("\n");
     log::info!("✅ New app chain initialised.");
 }
 
@@ -50,13 +51,23 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
     let binding = app_chains_home.join(format!("{}/data", app_chain));
     let default_base_path = binding.to_str().unwrap_or("madara-data");
 
-    let base_path = get_text_input("Enter base path for data directory of your app chain:", Some(default_base_path))?;
     let mode = get_option("Select mode for your app chain:", RollupMode::iter().collect::<Vec<_>>())?;
     let da_layer = get_option("Select DA layer for your app chain:", DALayer::iter().collect::<Vec<_>>())?;
     let madara_version = get_latest_commit_hash(MADARA_REPO_ORG, MADARA_REPO_NAME)?;
     let config_version = ConfigVersion::Version1;
 
-    match DAFactory::new_da(&da_layer).setup_and_generate_keypair(&app_chain) {
+    log::info!("\n");
+
+    let config = AppChainConfig {
+        app_chain,
+        base_path: default_base_path.to_string(),
+        mode,
+        da_layer: da_layer.clone(),
+        madara_version,
+        config_version,
+    };
+
+    match DAFactory::new_da(&da_layer).setup_and_generate_keypair(&config) {
         Ok(_) => (),
         Err(err) => {
             log::error!("Failed to generate keypair: {}", err);
@@ -64,7 +75,7 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
         }
     };
 
-    Ok(AppChainConfig { app_chain, base_path, mode, da_layer, madara_version, config_version })
+    Ok(config)
 }
 
 fn write_config(config: &AppChainConfig) -> Result<(), InitError> {
@@ -74,7 +85,7 @@ fn write_config(config: &AppChainConfig) -> Result<(), InitError> {
     if let Err(err) = fs::write(file_path, toml) {
         panic!("Error writing to file: {}", err);
     } else {
-        log::info!("Config file saved!");
+        log::debug!("Config file saved!");
     }
 
     Ok(())
