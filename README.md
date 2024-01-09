@@ -10,35 +10,35 @@ There are a few dependencies that need to be installed to smoothly `madara-cli`.
 
 ## Quick Start
 
-1. Clone the `madara-cli` repo:
+* Clone repo:
 
-```shell
+```bash
 git clone https://github.com/karnotxyz/madara-cli
 ```
 
-2. Navigate to the madara-cli directory and build the tool:
+* Build repo:
 
-```shell
-cd madara-cli 
-cargo build --release 
-```
-   
-3. Initialize a new app chain. Please fund the DA account (if applicable).
-
-```shell
-./target/release/madara init  
+```bash
+cd madara-cli
+cargo build --release
 ```
 
-4. Run your app chain:
+* Initialize a new app chain. Please fund the DA account (if applicable):
 
-```shell
+```bash
+./target/release/madara init
+```
+
+* Run your app chain:
+
+```bash
 ./target/release/madara run
 ```
 
-5. Optionally, explore the StarkScan explorer. Accessible at http://localhost:4000.
+* Optionally, explore the StarkScan explorer. Accessible at [http://localhost:4000](http://localhost:4000).
 
-```shell
+```bash
 ./target/release/madara explorer
 ```
-   
+
 **Congratulations! You now have a custom madara app running.**

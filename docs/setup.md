@@ -83,6 +83,7 @@ Verify `brew` installation:
 brew --version
 Homebrew 4.2.2
 ```
+
 If brew is not found, install using following command:
 
 ```bash
