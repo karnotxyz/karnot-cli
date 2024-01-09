@@ -4,9 +4,9 @@ A command-line tool for rapid deployment of Madara app chains.
 
 ## Dependencies
 
-There are a few dependencies that need to be installed to smoothly `madara-cli`
+There are a few dependencies that need to be installed to smoothly `madara-cli`.
 
-[Installing dependencies] (./docs/setup.md)
+[Installing dependencies](./docs/setup.md)
 
 ## Quick Start
 
