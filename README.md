@@ -23,7 +23,7 @@ cd madara-cli
 cargo build --release 
 ```
    
-3. Initialize a new app chain. Ensure to fund the logged account, especially if you've chosen Avail as your DA Layer.
+3. Initialize a new app chain. Please fund the DA account (if applicable).
 
 ```shell
 ./target/release/madara init  
