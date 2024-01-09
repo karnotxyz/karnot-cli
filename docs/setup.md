@@ -6,7 +6,7 @@ Install the latest `git` version
 
 Instruction can be found on the [official site](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
 
-Verify the `git ` installation:
+Verify the `git` installation:
 
 ```bash
 git --version
@@ -35,7 +35,7 @@ Installing `docker` via `snap` or from the default repository can cause troubles
 
 **Note:** On linux you may encounter the following error when you’ll try to work with `madara-cli`:
 
-```
+```bash
 ERROR: Couldn't connect to Docker daemon - you might need to run `docker-machine start default`.
 ```
 
