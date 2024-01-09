@@ -49,11 +49,8 @@ pub fn setup_and_run_madara(config: AppChainConfig) -> Result<(), MadaraError> {
         args.extend(avail_conf);
     };
 
-    let config_path = madara_path
-        .join("configs")
-        .into_os_string()
-        .into_string()
-        .map_err(MadaraError::FailedToConvertToString)?;
+    let config_path =
+        madara_path.join("configs").into_os_string().into_string().map_err(MadaraError::FailedToConvertToString)?;
 
     execute_cmd(
         "./target/release/madara",

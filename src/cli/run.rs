@@ -1,4 +1,3 @@
-
 use inquire::InquireError;
 use thiserror::Error;
 
