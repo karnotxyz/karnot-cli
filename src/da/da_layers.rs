@@ -14,8 +14,6 @@ use crate::utils::paths::get_app_home;
 #[derive(Debug, Serialize, Deserialize, EnumIter, Display, Clone)]
 pub enum DALayer {
     Avail,
-    Celestia,
-    Ethereum,
     NoDA,
 }
 
