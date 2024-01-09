@@ -56,9 +56,9 @@ impl DaClient for AvailClient {
     fn confirm_minimum_balance(&self, config: &AppChainConfig) -> Result<(), DaError> {
         let avail_config_path = self.get_da_config_path(config)?;
         let avail_config: AvailConfig = serde_json::from_str(
-            fs::read_to_string(avail_config_path).map_err(|e| DaError::FailedToReadDaConfigFile(e))?.as_str(),
+            fs::read_to_string(avail_config_path).map_err(DaError::FailedToReadDaConfigFile)?.as_str(),
         )
-        .map_err(|e| DaError::FailedToDeserializeDaConfig(e))?;
+        .map_err(DaError::FailedToDeserializeDaConfig)?;
         match get_boolean_input(
             format!(
                 "Have you funded your Avail address {} using the faucet? Docs: {}",
@@ -84,7 +84,7 @@ fn generate_config(da_config_path: &str, seed: &str, address: &str) -> Result<()
 
     if let Err(err) = fs::write(
         da_config_path,
-        serde_json::to_string(&avail_config).map_err(|e| DaError::FailedToSerializeDaConfig(e))?,
+        serde_json::to_string(&avail_config).map_err(DaError::FailedToSerializeDaConfig)?,
     ) {
         panic!("Error writing to file: {}", err);
     } else {

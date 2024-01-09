@@ -5,7 +5,7 @@ use crate::utils::constants::{APP_DA_CONFIG_NAME, BRANCH_NAME, KARNOT_REPO_ORG, 
 use crate::utils::errors::MadaraError;
 use crate::utils::github::git_clone;
 use crate::utils::paths::{get_app_home, get_madara_home};
-use crate::utils::toml::regenerate_app_config;
+
 pub const GITHUB_BASE_URL: &str = "https://github.com";
 
 pub fn clone_madara_and_build_repo() -> Result<(), MadaraError> {
@@ -53,7 +53,7 @@ pub fn setup_and_run_madara(config: AppChainConfig) -> Result<(), MadaraError> {
         .join("configs")
         .into_os_string()
         .into_string()
-        .map_err(|e| MadaraError::FailedToConvertToString(e))?;
+        .map_err(MadaraError::FailedToConvertToString)?;
 
     execute_cmd(
         "./target/release/madara",

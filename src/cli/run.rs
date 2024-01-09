@@ -1,4 +1,4 @@
-use crate::cli::init::InitError;
+
 use inquire::InquireError;
 use thiserror::Error;
 

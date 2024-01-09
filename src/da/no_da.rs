@@ -9,7 +9,7 @@ impl DaClient for NoDAConfig {
         Ok(())
     }
 
-    fn confirm_minimum_balance(&self, config: &AppChainConfig) -> Result<(), DaError> {
+    fn confirm_minimum_balance(&self, _config: &AppChainConfig) -> Result<(), DaError> {
         Ok(())
     }
 }

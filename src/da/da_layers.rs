@@ -39,7 +39,7 @@ pub trait DaClient {
     fn confirm_minimum_balance(&self, config: &AppChainConfig) -> Result<(), DaError>;
 
     fn get_da_config_path(&self, config: &AppChainConfig) -> Result<PathBuf, DaError> {
-        Ok(get_app_home(&config.app_chain).map_err(|e| DaError::FailedToReadAppHome(e))?.join(APP_DA_CONFIG_NAME))
+        Ok(get_app_home(&config.app_chain).map_err(DaError::FailedToReadAppHome)?.join(APP_DA_CONFIG_NAME))
     }
 }
 
