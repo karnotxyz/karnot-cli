@@ -29,3 +29,5 @@ strum_macros = { version = "0.25.3", features = [] }
 thiserror = "1.0.52"
 tokio = { version = "1.35.1", features = ["rt", "rt-multi-thread", "macros"] }
 toml = "0.8.8"
+ethers = { git = "https://github.com/gakonst/ethers-rs", rev = "f0e5b194f09c533feb10d1a686ddb9e5946ec107" }
+async-trait = "0.1.77"
