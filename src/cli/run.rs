@@ -20,6 +20,8 @@ pub enum RunError {
     FailedToRegenerateConfig(String),
     #[error("Failed with DA error: {0}")]
     FailedWithDaError(#[from] DaError),
+    #[error(transparent)]
+    Other(#[from] eyre::Error),
 }
 pub async fn run() {
     match start_app_chain().await {

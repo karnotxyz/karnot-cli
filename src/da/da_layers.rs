@@ -13,6 +13,7 @@ use crate::da::ethereum::EthereumError;
 use crate::da::no_da::NoDAConfig;
 use crate::utils::constants::APP_DA_CONFIG_NAME;
 use crate::utils::paths::get_app_home;
+use eyre::Result as EyreResult;
 
 #[derive(Debug, Serialize, Deserialize, EnumIter, Display, Clone)]
 pub enum DALayer {
@@ -51,7 +52,7 @@ pub trait DaClient {
         Ok(get_app_home(&config.app_chain).map_err(DaError::FailedToReadAppHome)?.join(APP_DA_CONFIG_NAME))
     }
 
-    async fn setup(&self, config: &AppChainConfig) -> Result<(), DaError>;
+    async fn setup(&self, config: &AppChainConfig) -> EyreResult<()>;
 }
 
 pub struct DAFactory;

@@ -2620,6 +2620,7 @@ dependencies = [
  "dirs",
  "env_logger",
  "ethers",
+ "eyre",
  "futures-util",
  "git2",
  "hex",

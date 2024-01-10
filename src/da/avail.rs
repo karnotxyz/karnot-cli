@@ -74,7 +74,7 @@ impl DaClient for AvailClient {
         }
     }
 
-    async fn setup(&self, config: &AppChainConfig) -> Result<(), DaError> {
+    async fn setup(&self, _config: &AppChainConfig) -> eyre::Result<()> {
         Ok(())
     }
 }
@@ -89,7 +89,7 @@ fn generate_config(da_config_path: &str, seed: &str, address: &str) -> Result<()
     };
 
     fs::write(da_config_path, serde_json::to_string(&avail_config).map_err(DaError::FailedToSerializeDaConfig)?)
-        .map_err(|e| DaError::FailedToWriteDaConfigToFile(e))?;
+        .map_err(DaError::FailedToWriteDaConfigToFile)?;
 
     Ok(())
 }

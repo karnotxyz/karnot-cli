@@ -15,7 +15,7 @@ impl DaClient for NoDAConfig {
         Ok(())
     }
 
-    async fn setup(&self, config: &AppChainConfig) -> Result<(), DaError> {
+    async fn setup(&self, _config: &AppChainConfig) -> eyre::Result<()> {
         Ok(())
     }
 }

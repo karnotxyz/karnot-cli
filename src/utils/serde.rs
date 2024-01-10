@@ -1,12 +1,17 @@
 // Copied from starknet_api
 
-#[derive(Clone, Debug)]
+use thiserror::Error;
+
+#[derive(Clone, Debug, Error)]
 pub enum InnerDeserializationError {
     /// Error parsing the hex string.
+    #[error("error converting from hex")]
     FromHex(hex::FromHexError),
     /// Missing 0x prefix in the hex string.
+    #[error("missing hex prefix in {hex_str}")]
     MissingPrefix { hex_str: String },
     /// Unexpected input byte count.
+    #[error("bad input when converting to bytes (expected {expected_byte_count} bytes, found {string_found})")]
     BadInput { expected_byte_count: usize, string_found: String },
 }
 
