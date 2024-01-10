@@ -88,18 +88,8 @@ fn generate_config(da_config_path: &str, seed: &str, address: &str) -> Result<()
         address: address.to_string(),
     };
 
-<<<<<<< Updated upstream
-    if let Err(err) =
-        fs::write(da_config_path, serde_json::to_string(&avail_config).map_err(DaError::FailedToSerializeDaConfig)?)
-    {
-        panic!("Error writing to file: {}", err);
-    } else {
-        log::debug!("Successfully generated Avail config!");
-    }
-=======
     fs::write(da_config_path, serde_json::to_string(&avail_config).map_err(DaError::FailedToSerializeDaConfig)?)
         .map_err(|e| DaError::FailedToWriteDaConfigToFile(e))?;
->>>>>>> Stashed changes
 
     Ok(())
 }
