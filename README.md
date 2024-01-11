@@ -4,7 +4,7 @@ A command-line tool for rapid deployment of Madara app chains.
 
 ## Dependencies
 
-There are a few dependencies that need to be installed to smoothly `madara-cli`.
+There are a few dependencies that need to be installed to smoothly use `madara-cli`.
 
 [Installing dependencies](./docs/setup.md)
 
@@ -35,7 +35,7 @@ cargo build --release
 ./target/release/madara run
 ```
 
-- Optionally, explore the StarkScan explorer. Accessible at [http://localhost:4000](http://localhost:4000).
+- Optionally, explore the StarkCompass explorer. Accessible at [http://localhost:4000](http://localhost:4000).
 
 ```bash
 ./target/release/madara explorer
