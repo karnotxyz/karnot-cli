@@ -21,7 +21,8 @@ enum Commands {
     Explorer,
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     env_logger::Builder::from_default_env()
         .filter_level(LevelFilter::Info)
         .format_timestamp(None)
@@ -34,7 +35,7 @@ fn main() {
     match &cli.command {
         Some(Commands::Init) => cli::init::init(),
         Some(Commands::List) => cli::list::list(),
-        Some(Commands::Run) => cli::run::run(),
+        Some(Commands::Run) => cli::run::run().await,
         Some(Commands::Explorer) => cli::explorer::explorer(),
         None => log::info!("Use --help to see the complete list of available commands"),
     }

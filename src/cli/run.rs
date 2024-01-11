@@ -20,9 +20,11 @@ pub enum RunError {
     FailedToRegenerateConfig(String),
     #[error("Failed with DA error: {0}")]
     FailedWithDaError(#[from] DaError),
+    #[error(transparent)]
+    Other(#[from] eyre::Error),
 }
-pub fn run() {
-    match start_app_chain() {
+pub async fn run() {
+    match start_app_chain().await {
         Ok(_) => {
             log::info!("Madara setup successful");
         }
@@ -32,7 +34,7 @@ pub fn run() {
     }
 }
 
-fn start_app_chain() -> Result<(), RunError> {
+async fn start_app_chain() -> Result<(), RunError> {
     let app_chains_list = get_apps_list()?;
     let app = get_option("Select the app chain:", app_chains_list)?;
     let app_chain: &str = &app;
@@ -47,7 +49,9 @@ fn start_app_chain() -> Result<(), RunError> {
 
     madara::clone_madara_and_build_repo()?;
 
-    DAFactory::new_da(&config.da_layer).confirm_minimum_balance(&config)?;
+    let da_factory = DAFactory::new_da(&config.da_layer);
+    da_factory.confirm_minimum_balance(&config)?;
+    da_factory.setup(&config).await?;
 
     madara::setup_and_run_madara(config)?;
 

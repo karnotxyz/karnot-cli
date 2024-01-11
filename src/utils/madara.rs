@@ -44,10 +44,17 @@ pub fn setup_and_run_madara(config: AppChainConfig) -> Result<(), MadaraError> {
     let mut args =
         vec!["--chain=dev", "--alice", "--force-authoring", "--rpc-cors=all", "--tx-ban-seconds=0", &base_path];
 
-    if let DALayer::Avail = &config.da_layer {
-        let avail_conf = vec!["--da-layer=avail", &da_conf];
-        args.extend(avail_conf);
-    };
+    match config.da_layer {
+        DALayer::Ethereum => {
+            let ethereum_conf = vec!["--da-layer=ethereum", &da_conf];
+            args.extend(ethereum_conf);
+        }
+        DALayer::Avail => {
+            let avail_conf = vec!["--da-layer=avail", &da_conf];
+            args.extend(avail_conf);
+        }
+        _ => (),
+    }
 
     let config_path =
         madara_path.join("configs").into_os_string().into_string().map_err(MadaraError::FailedToConvertToString)?;

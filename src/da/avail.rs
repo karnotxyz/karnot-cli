@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use std::fs;
 
 use crate::app::config::AppChainConfig;
@@ -30,6 +31,7 @@ pub enum AvailError {
 
 const AVAIL_DOCS: &str = "https://docs.availproject.org/about/faucet/";
 
+#[async_trait]
 impl DaClient for AvailClient {
     fn setup_and_generate_keypair(&self, config: &AppChainConfig) -> Result<(), DaError> {
         let file_path = self.get_da_config_path(config)?;
@@ -71,6 +73,10 @@ impl DaClient for AvailClient {
             false => Err(DaError::AvailError(AvailError::FaucetFundsNeeded)),
         }
     }
+
+    async fn setup(&self, _config: &AppChainConfig) -> eyre::Result<()> {
+        Ok(())
+    }
 }
 
 fn generate_config(da_config_path: &str, seed: &str, address: &str) -> Result<(), DaError> {
@@ -82,13 +88,8 @@ fn generate_config(da_config_path: &str, seed: &str, address: &str) -> Result<()
         address: address.to_string(),
     };
 
-    if let Err(err) =
-        fs::write(da_config_path, serde_json::to_string(&avail_config).map_err(DaError::FailedToSerializeDaConfig)?)
-    {
-        panic!("Error writing to file: {}", err);
-    } else {
-        log::debug!("Successfully generated Avail config!");
-    }
+    fs::write(da_config_path, serde_json::to_string(&avail_config).map_err(DaError::FailedToSerializeDaConfig)?)
+        .map_err(DaError::FailedToWriteDaConfigToFile)?;
 
     Ok(())
 }

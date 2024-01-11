@@ -13,3 +13,4 @@ pub mod toml;
 pub mod constants;
 
 pub mod docker;
+pub mod serde;
