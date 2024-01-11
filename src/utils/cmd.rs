@@ -13,7 +13,7 @@ pub fn execute_cmd_stdout(program: &str, args: &[&str], dir: &PathBuf, out: Stdi
     match result {
         Ok(output) => {
             if output.status.success() {
-                log::info!("Successfully executed {}", program);
+                log::debug!("Successfully executed {}", program);
                 Ok(output)
             } else {
                 Err(Error::new(ErrorKind::Other, "Unable to execute command"))
