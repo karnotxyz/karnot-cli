@@ -4,9 +4,9 @@ use rand::Rng;
 
 use std::collections::HashMap;
 
-use crate::utils::docker::run_docker_image;
+use crate::utils::docker::{container_exists, kill_container, run_docker_image};
 
-pub fn explorer() {
+pub async fn explorer() {
     let random_string: String = (0..64).map(|_| rand::thread_rng().sample(Alphanumeric).to_string()).collect();
     let secret_key_base = format!("SECRET_KEY_BASE={}", random_string);
 
@@ -29,10 +29,19 @@ pub fn explorer() {
 
     let host_config = HostConfig { port_bindings: Some(port_bindings), ..Default::default() };
 
+    const CONTAINER_NAME: &str = "madara-explorer";
+
+    if container_exists(CONTAINER_NAME).await {
+        // TODO: handle error
+        let _ = kill_container(CONTAINER_NAME).await;
+    }
+
     run_docker_image(
         "ghcr.io/lambdaclass/stark_compass_explorer:v0.2.34.2",
-        "madara-explorer",
+        CONTAINER_NAME,
         Some(env),
         Some(host_config),
-    );
+    )
+    .await;
+    log::info!("🧭 Explorer is running on http://localhost:4000");
 }
