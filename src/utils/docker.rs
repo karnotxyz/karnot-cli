@@ -39,8 +39,7 @@ async fn is_docker_installed() {
 
 pub async fn container_exists(container_name: &str) -> bool {
     let docker = Docker::connect_with_local_defaults().unwrap();
-    let mut list_container_options = ListContainersOptions::default();
-    list_container_options.all = true;
+    let list_container_options = ListContainersOptions { all: true, ..Default::default() };
     match docker.list_containers::<String>(Some(list_container_options)).await {
         Ok(containers) => {
             for container in containers {
