@@ -36,7 +36,7 @@ async fn main() {
         Some(Commands::Init) => cli::init::init(),
         Some(Commands::List) => cli::list::list(),
         Some(Commands::Run) => cli::run::run().await,
-        Some(Commands::Explorer) => cli::explorer::explorer(),
+        Some(Commands::Explorer) => cli::explorer::explorer().await,
         None => log::info!("Use --help to see the complete list of available commands"),
     }
 }

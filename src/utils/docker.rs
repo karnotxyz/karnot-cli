@@ -1,14 +1,22 @@
-use bollard::container::{Config, CreateContainerOptions};
+use bollard::container::{Config, CreateContainerOptions, ListContainersOptions};
 use bollard::image::CreateImageOptions;
 use bollard::models::HostConfig;
 use bollard::Docker;
 use futures_util::TryStreamExt;
 
-pub fn run_docker_image(image: &str, container_name: &str, env: Option<Vec<&str>>, host_config: Option<HostConfig>) {
-    is_docker_installed();
-    match pull_and_start_docker_image(image, container_name, env, host_config) {
+// TODO: fix unwraps and handle errors
+
+pub async fn run_docker_image(
+    image: &str,
+    container_name: &str,
+    env: Option<Vec<&str>>,
+    host_config: Option<HostConfig>,
+) {
+    is_docker_installed().await;
+    log::info!("🐳 Running docker image: {}", image);
+    match pull_and_start_docker_image(image, container_name, env, host_config).await {
         Ok(..) => {
-            log::info!("Successfully ran {}", container_name);
+            log::debug!("Successfully ran {}", container_name);
         }
         Err(err) => {
             log::error!("Error: {} running image: {}", err, image);
@@ -16,12 +24,11 @@ pub fn run_docker_image(image: &str, container_name: &str, env: Option<Vec<&str>
     };
 }
 
-#[tokio::main]
-async fn is_docker_installed() -> bool {
+async fn is_docker_installed() {
     let docker = Docker::connect_with_local_defaults().unwrap();
-    return match docker.version().await {
+    match docker.version().await {
         Ok(_) => {
-            log::info!("Docker running!");
+            log::debug!("✅ Docker is installed!");
             true
         }
         Err(_) => {
@@ -30,8 +37,37 @@ async fn is_docker_installed() -> bool {
     };
 }
 
-#[tokio::main]
-async fn pull_and_start_docker_image(
+pub async fn container_exists(container_name: &str) -> bool {
+    let docker = Docker::connect_with_local_defaults().unwrap();
+    let list_container_options = ListContainersOptions { all: true, ..Default::default() };
+    match docker.list_containers::<String>(Some(list_container_options)).await {
+        Ok(containers) => {
+            for container in containers {
+                if let Some(names) = container.names {
+                    if names.contains(&format!("/{}", &container_name.to_string())) {
+                        log::debug!("✅ Container {} exists!", container_name);
+                        return true;
+                    }
+                }
+            }
+            log::debug!("❌ Container {} does not exist!", container_name);
+            false
+        }
+        Err(_) => {
+            panic!("Failed to fetch containers, panicking");
+        }
+    }
+}
+
+pub async fn kill_container(container_name: &str) -> eyre::Result<()> {
+    let docker = Docker::connect_with_local_defaults().unwrap();
+    // TODO: handle the error
+    let _ = docker.kill_container::<String>(container_name, None).await;
+    docker.remove_container(container_name, None).await?;
+    Ok(())
+}
+
+pub async fn pull_and_start_docker_image(
     image: &str,
     container_name: &str,
     env: Option<Vec<&str>>,
