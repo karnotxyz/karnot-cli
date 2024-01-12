@@ -33,7 +33,7 @@ const AVAIL_DOCS: &str = "https://docs.availproject.org/about/faucet/";
 
 #[async_trait]
 impl DaClient for AvailClient {
-    fn setup_and_generate_keypair(&self, config: &AppChainConfig) -> Result<(), DaError> {
+    fn setup_and_generate_keypair(&self, config: &AppChainConfig) -> eyre::Result<()> {
         let file_path = self.get_da_config_path(config)?;
         let file_path_str = file_path.to_string_lossy().to_string();
         let (pair, phrase, seed) = <sr25519::Pair as Pair>::generate_with_phrase(None);
