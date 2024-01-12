@@ -13,6 +13,7 @@ use ethers::signers::{LocalWallet, Signer, WalletError};
 use serde::{Deserialize, Serialize};
 use std::fs;
 
+use crate::cli::prompt::get_boolean_input;
 use std::str::FromStr;
 use std::sync::Arc;
 use std::time::Duration;
@@ -36,7 +37,11 @@ pub enum EthereumError {
     FailedToCreateWallet(WalletError),
     #[error("Failed to setup Starknet on Anvil")]
     FailedToSetupStarknet,
+    #[error("Anvil node not running")]
+    AnvilNodeNotRunning,
 }
+
+const ANVIL_DOCS: &str = "https://github.com/foundry-rs/foundry/tree/master/crates/anvil";
 
 #[async_trait]
 impl DaClient for EthereumClient {
@@ -66,6 +71,14 @@ impl DaClient for EthereumClient {
     }
 
     async fn setup(&self, config: &AppChainConfig) -> EyreResult<()> {
+        match get_boolean_input(
+            format!("Are you running an Anvil node locally? The CLI tool has been tested on Anvil version 0.2.0 (c312c0d). Docs: {}", ANVIL_DOCS).as_str(),
+            Some(true),
+        )? {
+            true => Ok(()),
+            false => Err(DaError::EthereumError(EthereumError::AnvilNodeNotRunning)),
+        }?;
+
         let ethereum_config_path = self.get_da_config_path(config)?;
         let ethereum_config: EthereumConfig = serde_json::from_str(
             fs::read_to_string(ethereum_config_path).map_err(DaError::FailedToReadDaConfigFile)?.as_str(),
