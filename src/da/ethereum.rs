@@ -8,11 +8,12 @@ use ethers::contract::abigen;
 
 use ethers::middleware::SignerMiddleware;
 use ethers::providers::{Http, Provider};
-use ethers::signers::{LocalWallet, Signer, WalletError};
+use ethers::signers::{LocalWallet, MnemonicBuilder, Signer, WalletError};
 
 use serde::{Deserialize, Serialize};
 use std::fs;
 
+use ethers::signers::coins_bip39::English;
 use std::str::FromStr;
 use std::sync::Arc;
 use std::time::Duration;
@@ -38,25 +39,42 @@ pub enum EthereumError {
     FailedToSetupStarknet,
 }
 
+const SEPOLIA_FAUCET_LINKS: &str = "https://faucetlink.to/sepolia";
+
 #[async_trait]
 impl DaClient for EthereumClient {
-    fn setup_and_generate_keypair(&self, config: &AppChainConfig) -> Result<(), DaError> {
+    fn setup_and_generate_keypair(&self, config: &AppChainConfig) -> eyre::Result<()> {
         let file_path = self.get_da_config_path(config)?;
         let file_path_str = file_path.to_string_lossy().to_string();
 
-        // TODO: generate a new random key for every new app chain
+        let mut rng = rand::thread_rng();
+        let wallet = MnemonicBuilder::<English>::default()
+            .word_count(24)
+            .derivation_path("m/44'/60'/0'/2/1")?
+            .build_random(&mut rng)?;
+
         let ethereum_config = EthereumConfig {
             http_provider: "http://localhost:8545".to_string(),
-            core_contracts: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512".to_string(),
+            core_contracts: "".to_string(),
             // default anvil key
-            sequencer_key: "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80".to_string(),
+            sequencer_key: hex::encode(wallet.signer().to_bytes()),
             chain_id: 31337,
             mode: "sovereign".to_string(),
             poll_interval_ms: 10,
         };
 
-        fs::write(file_path_str, serde_json::to_string(&ethereum_config).map_err(DaError::FailedToSerializeDaConfig)?)
-            .map_err(DaError::FailedToWriteDaConfigToFile)?;
+        fs::write(
+            file_path_str.clone(),
+            serde_json::to_string(&ethereum_config).map_err(DaError::FailedToSerializeDaConfig)?,
+        )
+        .map_err(DaError::FailedToWriteDaConfigToFile)?;
+
+        log::info!("🔑 Secret phrase stored in app home: {}", file_path_str);
+        log::info!("💧 Ethereum address: {:?}", wallet.address());
+        log::info!(
+            "=> Please fund your Ethereum address to do the setup on the Sepolia network. Docs: {}",
+            SEPOLIA_FAUCET_LINKS
+        );
 
         Ok(())
     }
@@ -67,10 +85,15 @@ impl DaClient for EthereumClient {
 
     async fn setup(&self, config: &AppChainConfig) -> EyreResult<()> {
         let ethereum_config_path = self.get_da_config_path(config)?;
-        let ethereum_config: EthereumConfig = serde_json::from_str(
+        let mut ethereum_config: EthereumConfig = serde_json::from_str(
             fs::read_to_string(ethereum_config_path).map_err(DaError::FailedToReadDaConfigFile)?.as_str(),
         )
         .map_err(DaError::FailedToDeserializeDaConfig)?;
+
+        if !ethereum_config.core_contracts.is_empty() {
+            log::info!("✅ Ethereum contracts already deployed");
+            return Ok(());
+        }
 
         // get wallet
         let wallet =
@@ -115,6 +138,13 @@ impl DaClient for EthereumClient {
 
         // 2. Add our EOA as Starknet operator
         initializer.register_operator(wallet.address()).send().await?.await?;
+
+        // overwrite Ethereum config with core contract address
+        ethereum_config.core_contracts = proxy_contract.address().to_string();
+
+        let file_path = self.get_da_config_path(config)?.to_string_lossy().to_string();
+        fs::write(file_path, serde_json::to_string(&ethereum_config).map_err(DaError::FailedToSerializeDaConfig)?)
+            .map_err(DaError::FailedToWriteDaConfigToFile)?;
 
         Ok(())
     }

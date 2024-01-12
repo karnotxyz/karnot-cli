@@ -6,7 +6,7 @@ use async_trait::async_trait;
 
 #[async_trait]
 impl DaClient for NoDAConfig {
-    fn setup_and_generate_keypair(&self, config: &AppChainConfig) -> Result<(), DaError> {
+    fn setup_and_generate_keypair(&self, config: &AppChainConfig) -> eyre::Result<()> {
         log::info!("Launching {} without any DA mode", config.app_chain);
         Ok(())
     }
