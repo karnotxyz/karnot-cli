@@ -11,6 +11,9 @@ use crate::cli::prompt::get_boolean_input;
 use crate::da::da_layers::{DaClient, DaError};
 use crate::utils::docker::{container_exists, kill_container, run_docker_image};
 use crate::utils::paths::get_celestia_home;
+use std::thread;
+use std::time::Duration;
+
 pub struct CelestiaClient;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -34,12 +37,25 @@ const CELESTIA_DOCS: &str = "https://docs.celestia.org/developers/celestia-app-w
 
 #[async_trait]
 impl DaClient for CelestiaClient {
-    fn generate_da_config(&self, config: &AppChainConfig) -> Result<(), DaError> {
-        let file_path = self.get_da_config_path(config)?;
-        let file_path_str = file_path.to_string_lossy().to_string();
+    async fn generate_da_config(&self, config: &AppChainConfig) -> Result<(), DaError> {
         let celestia_home = get_celestia_home().unwrap();
         let file_keys_txt = celestia_home.join("keys.txt");
         let file_auth_txt = celestia_home.join("auth.txt");
+
+        if !file_keys_txt.exists() || !file_auth_txt.exists() {
+            let run_cmd = vec![
+                "sh",
+                "-c",
+                "celestia light init --p2p.network=mocha > /home/celestia/keys.txt &&\
+                 celestia light auth admin --p2p.network=mocha > /home/celestia/auth.txt"
+            ];
+            run_celestia_light_node(run_cmd).await.unwrap();
+            // Waits for docker container to execute the commands and generate the keys
+            thread::sleep(Duration::from_secs(5));
+        }
+
+        let file_path = self.get_da_config_path(config)?;
+        let file_path_str = file_path.to_string_lossy().to_string();
 
         let keys_txt_content = match fs::read_to_string(file_keys_txt) {
             Ok(content) => content,
@@ -72,7 +88,7 @@ impl DaClient for CelestiaClient {
             return Err(DaError::CelestiaError(CelestiaError::SetupError));
         }
 
-        write_config(file_path_str.as_str(), auth_token.as_str(), address)?;
+        write_config(file_path_str.as_str(), auth_token.trim(), address)?;
 
         Ok(())
     }
@@ -97,11 +113,16 @@ impl DaClient for CelestiaClient {
     }
 
     async fn setup(&self, _config: &AppChainConfig) -> eyre::Result<()> {
-        start_celestia_light_node().await
+        let run_cmd = vec![
+            "sh",
+            "-c",
+            "celestia light start --core.ip=rpc-mocha.pops.one --p2p.network=mocha",
+        ];
+        run_celestia_light_node(run_cmd).await
     }
 }
 
-pub async fn start_celestia_light_node() -> eyre::Result<()> {
+pub async fn run_celestia_light_node(run_cmd: Vec<&str>) -> eyre::Result<()> {
     let celestia_home = get_celestia_home()?;
     let celestia_home_str = celestia_home.to_str().unwrap_or("~/.madara/celestia");
 
@@ -124,13 +145,13 @@ pub async fn start_celestia_light_node() -> eyre::Result<()> {
         ..Default::default()
     };
 
-    let start_cmd = vec![
-        "sh",
-        "-c",
-        "celestia light init --p2p.network=mocha > /home/celestia/keys.txt &&celestia light auth admin \
-         --p2p.network=mocha > /home/celestia/auth.txt &&celestia light start --core.ip=rpc-mocha.pops.one \
-         --p2p.network=mocha",
-    ];
+    // let start_cmd = vec![
+    //     "sh",
+    //     "-c",
+    //     "celestia light init --p2p.network=mocha > /home/celestia/keys.txt &&celestia light auth admin \
+    //      --p2p.network=mocha > /home/celestia/auth.txt &&celestia light start --core.ip=rpc-mocha.pops.one \
+    //      --p2p.network=mocha",
+    // ];
 
     const CONTAINER_NAME: &str = "celestia-light-client";
 
@@ -144,10 +165,10 @@ pub async fn start_celestia_light_node() -> eyre::Result<()> {
         CONTAINER_NAME,
         Some(env),
         Some(host_config),
-        Some(start_cmd),
+        Some(run_cmd),
     )
     .await;
-    log::info!("🧭 Celestia light client is running");
+    log::info!("🧭 Command ran on Celestia light client\n");
 
     Ok(())
 }

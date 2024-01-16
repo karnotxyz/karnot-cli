@@ -26,8 +26,8 @@ pub enum InitError {
     FailedToGenerateKeypair,
 }
 
-pub fn init() {
-    let config = match generate_config() {
+pub async fn init() {
+    let config = match generate_config().await {
         Ok(config) => config,
         Err(err) => {
             panic!("Failed to get input: {}", err);
@@ -44,7 +44,7 @@ pub fn init() {
     log::info!("✅ New app chain initialised.");
 }
 
-fn generate_config() -> Result<AppChainConfig, InitError> {
+async fn generate_config() -> Result<AppChainConfig, InitError> {
     let app_chain = get_text_input("Enter you app chain name:", Some("madara"))?;
 
     let app_chains_home = get_app_chains_home()?;
@@ -67,7 +67,7 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
         config_version,
     };
 
-    match DAFactory::new_da(&da_layer).generate_da_config(&config) {
+    match DAFactory::new_da(&da_layer).generate_da_config(&config).await {
         Ok(_) => (),
         Err(err) => {
             log::error!("Failed to generate keypair: {}", err);

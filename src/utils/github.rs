@@ -16,7 +16,6 @@ struct Commit {
 
 pub fn get_latest_commit_hash(org: &str, repo: &str) -> Result<String, GithubError> {
     let github_api_url = format!("{}/repos/{}/{}/commits", GITHUB_API_BASE_URL, org, repo);
-
     let client = Client::new();
     let response = client.get(github_api_url).header("User-Agent", "reqwest").send();
 

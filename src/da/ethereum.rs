@@ -43,7 +43,7 @@ const ANVIL_DOCS: &str = "https://github.com/foundry-rs/foundry/tree/master/crat
 
 #[async_trait]
 impl DaClient for EthereumClient {
-    fn generate_da_config(&self, config: &AppChainConfig) -> Result<(), DaError> {
+    async fn generate_da_config(&self, config: &AppChainConfig) -> Result<(), DaError> {
         let file_path = self.get_da_config_path(config)?;
         let file_path_str = file_path.to_string_lossy().to_string();
 

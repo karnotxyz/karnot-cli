@@ -7,7 +7,7 @@ use crate::da::da_layers::{DaClient, DaError};
 
 #[async_trait]
 impl DaClient for NoDAConfig {
-    fn generate_da_config(&self, config: &AppChainConfig) -> Result<(), DaError> {
+    async fn generate_da_config(&self, config: &AppChainConfig) -> Result<(), DaError> {
         log::info!("Launching {} without any DA mode", config.app_chain);
         Ok(())
     }
