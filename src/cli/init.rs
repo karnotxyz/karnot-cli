@@ -67,7 +67,7 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
         config_version,
     };
 
-    match DAFactory::new_da(&da_layer).setup_and_generate_keypair(&config) {
+    match DAFactory::new_da(&da_layer).generate_da_config(&config) {
         Ok(_) => (),
         Err(err) => {
             log::error!("Failed to generate keypair: {}", err);

@@ -1,23 +1,24 @@
-use async_trait::async_trait;
 use std::io;
 use std::path::PathBuf;
 
+use async_trait::async_trait;
+use eyre::Result as EyreResult;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumIter};
 use thiserror::Error;
 
 use crate::app::config::AppChainConfig;
 use crate::da::avail::{AvailClient, AvailError};
-use crate::da::ethereum::EthereumClient;
-use crate::da::ethereum::EthereumError;
+use crate::da::celestia::{CelestiaClient, CelestiaError};
+use crate::da::ethereum::{EthereumClient, EthereumError};
 use crate::da::no_da::NoDAConfig;
 use crate::utils::constants::APP_DA_CONFIG_NAME;
 use crate::utils::paths::get_app_home;
-use eyre::Result as EyreResult;
 
 #[derive(Debug, Serialize, Deserialize, EnumIter, Display, Clone)]
 pub enum DALayer {
     Avail,
+    Celestia,
     Ethereum,
     NoDA,
 }
@@ -28,6 +29,8 @@ pub enum DaError {
     AvailError(#[from] AvailError),
     #[error("ethereum error: {0}")]
     EthereumError(#[from] EthereumError),
+    #[error("celestia error: {0}")]
+    CelestiaError(#[from] CelestiaError),
     #[error("failed to read app home: {0}")]
     FailedToReadAppHome(io::Error),
     #[error("inquire error")]
@@ -44,7 +47,7 @@ pub enum DaError {
 
 #[async_trait]
 pub trait DaClient {
-    fn setup_and_generate_keypair(&self, config: &AppChainConfig) -> Result<(), DaError>;
+    fn generate_da_config(&self, config: &AppChainConfig) -> Result<(), DaError>;
 
     fn confirm_minimum_balance(&self, config: &AppChainConfig) -> Result<(), DaError>;
 
@@ -61,6 +64,7 @@ impl DAFactory {
     pub fn new_da(da: &DALayer) -> Box<dyn DaClient> {
         match da {
             DALayer::Avail => Box::new(AvailClient {}),
+            DALayer::Celestia => Box::new(CelestiaClient {}),
             DALayer::Ethereum => Box::new(EthereumClient {}),
             _ => Box::new(NoDAConfig {}),
         }

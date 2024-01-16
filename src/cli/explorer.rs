@@ -1,8 +1,8 @@
+use std::collections::HashMap;
+
 use bollard::models::{HostConfig, PortBinding};
 use rand::distributions::Alphanumeric;
 use rand::Rng;
-
-use std::collections::HashMap;
 
 use crate::utils::docker::{container_exists, kill_container, run_docker_image};
 
@@ -41,6 +41,7 @@ pub async fn explorer() {
         CONTAINER_NAME,
         Some(env),
         Some(host_config),
+        None,
     )
     .await;
     log::info!("🧭 Explorer is running on http://localhost:4000");

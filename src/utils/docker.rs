@@ -11,10 +11,11 @@ pub async fn run_docker_image(
     container_name: &str,
     env: Option<Vec<&str>>,
     host_config: Option<HostConfig>,
+    start_cmd: Option<Vec<&str>>,
 ) {
     is_docker_installed().await;
     log::info!("🐳 Running docker image: {}", image);
-    match pull_and_start_docker_image(image, container_name, env, host_config).await {
+    match pull_and_start_docker_image(image, container_name, env, host_config, start_cmd).await {
         Ok(..) => {
             log::debug!("Successfully ran {}", container_name);
         }
@@ -72,6 +73,7 @@ pub async fn pull_and_start_docker_image(
     container_name: &str,
     env: Option<Vec<&str>>,
     host_config: Option<HostConfig>,
+    start_cmd: Option<Vec<&str>>,
 ) -> Result<(), Box<dyn std::error::Error + 'static>> {
     let docker = Docker::connect_with_local_defaults().unwrap();
 
@@ -80,7 +82,7 @@ pub async fn pull_and_start_docker_image(
         .try_collect::<Vec<_>>()
         .await?;
 
-    let config = Config { image: Some(image), tty: Some(true), env, host_config, ..Default::default() };
+    let config = Config { image: Some(image), cmd: start_cmd, tty: Some(true), env, host_config, ..Default::default() };
 
     let container_option = Some(CreateContainerOptions { name: container_name, ..Default::default() });
 
