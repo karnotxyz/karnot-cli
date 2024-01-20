@@ -26,8 +26,8 @@ pub enum InitError {
     FailedToGenerateKeypair,
 }
 
-pub fn init() {
-    let config = match generate_config() {
+pub async fn init() {
+    let config = match generate_config().await {
         Ok(config) => config,
         Err(err) => {
             panic!("Failed to get input: {}", err);
@@ -44,7 +44,7 @@ pub fn init() {
     log::info!("✅ New app chain initialised.");
 }
 
-fn generate_config() -> Result<AppChainConfig, InitError> {
+async fn generate_config() -> Result<AppChainConfig, InitError> {
     let app_chain = get_text_input("Enter you app chain name:", Some("madara"))?;
 
     let app_chains_home = get_app_chains_home()?;
@@ -53,7 +53,7 @@ fn generate_config() -> Result<AppChainConfig, InitError> {
 
     let mode = get_option("Select mode for your app chain:", RollupMode::iter().collect::<Vec<_>>())?;
     let da_layer = get_option("Select DA layer for your app chain:", DALayer::iter().collect::<Vec<_>>())?;
-    let madara_version = get_latest_commit_hash(MADARA_REPO_ORG, MADARA_REPO_NAME)?;
+    let madara_version = get_latest_commit_hash(MADARA_REPO_ORG, MADARA_REPO_NAME).await?;
     let config_version = ConfigVersion::Version1;
 
     log::info!("\n");
