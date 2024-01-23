@@ -33,7 +33,7 @@ async fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
-        Some(Commands::Init) => cli::init::init(),
+        Some(Commands::Init) => cli::init::init().await,
         Some(Commands::List) => cli::list::list(),
         Some(Commands::Run) => cli::run::run().await,
         Some(Commands::Explorer) => cli::explorer::explorer().await,
