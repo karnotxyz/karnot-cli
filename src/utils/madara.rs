@@ -48,6 +48,7 @@ pub fn setup_and_run_madara(config: AppChainConfig) -> Result<(), MadaraError> {
         "--rpc-cors=all",
         "--tx-ban-seconds=0",
         "--prometheus-external",
+        "--rpc-external",
         &base_path,
     ];
 
