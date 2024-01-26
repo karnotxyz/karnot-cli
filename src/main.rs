@@ -1,6 +1,7 @@
 use clap::{Parser, Subcommand};
 use log::LevelFilter;
 use madara_cli::cli;
+use madara_cli::cli::explorer::ExplorerOpts;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -18,7 +19,7 @@ enum Commands {
     /// Runs the App Chain using Madara
     Run,
     /// Runs the L2 explorer
-    Explorer,
+    Explorer(ExplorerOpts),
 }
 
 #[tokio::main]
@@ -36,7 +37,7 @@ async fn main() {
         Some(Commands::Init) => cli::init::init().await,
         Some(Commands::List) => cli::list::list(),
         Some(Commands::Run) => cli::run::run().await,
-        Some(Commands::Explorer) => cli::explorer::explorer().await,
+        Some(Commands::Explorer(opts)) => cli::explorer::explorer(opts).await,
         None => log::info!("Use --help to see the complete list of available commands"),
     }
 }
