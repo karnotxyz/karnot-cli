@@ -41,8 +41,15 @@ pub fn setup_and_run_madara(config: AppChainConfig) -> Result<(), MadaraError> {
     let da_conf = format!("--da-conf={}", da_config_path);
     let base_path = format!("--base-path={}", config.base_path);
 
-    let mut args =
-        vec!["--chain=dev", "--alice", "--force-authoring", "--rpc-cors=all", "--tx-ban-seconds=0", &base_path];
+    let mut args = vec![
+        "--chain=dev",
+        "--alice",
+        "--force-authoring",
+        "--rpc-cors=all",
+        "--tx-ban-seconds=0",
+        "--prometheus-external",
+        &base_path,
+    ];
 
     match config.da_layer {
         DALayer::Ethereum => {

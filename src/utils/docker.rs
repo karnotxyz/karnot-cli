@@ -53,8 +53,8 @@ pub async fn container_exists(container_name: &str) -> bool {
             log::debug!("❌ Container {} does not exist!", container_name);
             false
         }
-        Err(_) => {
-            panic!("Failed to fetch containers, panicking");
+        Err(e) => {
+            panic!("Failed to fetch containers, panicking {}", e);
         }
     }
 }
