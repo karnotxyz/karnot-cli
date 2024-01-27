@@ -1,0 +1,15 @@
+{
+
+  "name": "snabdon",
+
+  "logo": "Appchain-Logo-WebAdress",
+
+  "rpc_url": "https://38.242.245.90:9944",
+
+  "explorer_url": "https://38.242.245.90:4000",
+
+  "metrics_endpoint": "https://38.242.245.90:9615/metrics",
+
+  "id": "21548996655"
+
+}
