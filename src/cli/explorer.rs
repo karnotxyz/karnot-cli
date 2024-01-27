@@ -35,7 +35,11 @@ pub async fn explorer(opts: &ExplorerOpts) {
         Some(vec![PortBinding { host_ip: Some("0.0.0.0".to_string()), host_port: Some("4000".to_string()) }]),
     );
 
-    let host_config = HostConfig { port_bindings: Some(port_bindings), ..Default::default() };
+    let host_config = HostConfig {
+        port_bindings: Some(port_bindings),
+        extra_hosts: Some(vec!["host.docker.internal:host-gateway".to_string()]),
+        ..Default::default()
+    };
 
     const CONTAINER_NAME: &str = "madara-explorer";
 
