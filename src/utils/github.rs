@@ -20,13 +20,13 @@ pub async fn get_latest_commit_hash(org: &str, repo: &str, branch: &str) -> Resu
     let client = Client::new();
     let response = client.get(github_api_url).header("User-Agent", "reqwest").send().await;
 
-    return match response {
+    match response {
         Ok(response) => match response.json::<Commit>().await {
             Ok(latest_commit) => Ok(latest_commit.sha.clone()),
             Err(err) => Err(GithubError::FailedToGetCommits(err)),
         },
         Err(err) => Err(GithubError::FailedToGetCommits(err)),
-    };
+    }
 }
 
 pub fn git_clone(url: &str, path: &PathBuf, branch: Option<&str>) -> Result<(), GithubError> {

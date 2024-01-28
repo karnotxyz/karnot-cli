@@ -1,7 +1,7 @@
 use crate::app::config::AppChainConfig;
 use crate::da::da_layers::DALayer;
 use crate::utils::cmd::execute_cmd;
-use crate::utils::constants::{APP_DA_CONFIG_NAME, MADARA_BRANCH_NAME, MADARA_REPO_NAME, MADARA_REPO_ORG};
+use crate::utils::constants::{APP_DA_CONFIG_NAME, MADARA_REPO_NAME, MADARA_REPO_ORG};
 use crate::utils::errors::MadaraError;
 use crate::utils::github::git_clone;
 use crate::utils::paths::{get_app_home, get_madara_home};
