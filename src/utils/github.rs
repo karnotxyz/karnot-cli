@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
 use git2::Repository;
-use reqwest::blocking::Client;
+use reqwest::Client;
 use serde::Deserialize;
 
 use crate::utils::errors::GithubError;
@@ -14,13 +14,13 @@ struct Commit {
     sha: String,
 }
 
-pub fn get_latest_commit_hash(org: &str, repo: &str) -> Result<String, GithubError> {
+pub async fn get_latest_commit_hash(org: &str, repo: &str) -> Result<String, GithubError> {
     let github_api_url = format!("{}/repos/{}/{}/commits", GITHUB_API_BASE_URL, org, repo);
     let client = Client::new();
-    let response = client.get(github_api_url).header("User-Agent", "reqwest").send();
+    let response = client.get(github_api_url).header("User-Agent", "reqwest").send().await;
 
     return match response {
-        Ok(response) => match response.json::<Vec<Commit>>() {
+        Ok(response) => match response.json::<Vec<Commit>>().await {
             Ok(commits) => match commits.first() {
                 Some(latest_commit) => Ok(latest_commit.sha.clone()),
                 None => Err(GithubError::NoCommitsFound),

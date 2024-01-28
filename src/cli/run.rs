@@ -23,6 +23,7 @@ pub enum RunError {
     #[error(transparent)]
     Other(#[from] eyre::Error),
 }
+
 pub async fn run() {
     match start_app_chain().await {
         Ok(_) => {

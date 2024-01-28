@@ -46,9 +46,13 @@ impl DaClient for AvailClient {
             log::info!("🔑 Secret phrase stored in app home: {}", file_path_str);
             log::info!("💧 Avail address: {}", pair.public());
             log::info!(
-                "=> Please fund your Avail address to be able to submit blobs to the goldberg network. Docs: {}",
+                "📕 Please fund your Avail address to be able to submit blobs to the goldberg network. Docs: {}.",
                 AVAIL_DOCS
-            )
+            );
+            log::info!(
+                "🛠️ If you want to use a custom Avail address, please enter your seed and address in the config file: {}.",
+                file_path_str
+            );
         }
 
         write_config(file_path_str.as_str(), &seed_str, pair.public().to_string().as_str())?;
