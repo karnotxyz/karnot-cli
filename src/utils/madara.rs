@@ -1,18 +1,24 @@
 use crate::app::config::AppChainConfig;
 use crate::da::da_layers::DALayer;
 use crate::utils::cmd::execute_cmd;
-use crate::utils::constants::{APP_DA_CONFIG_NAME, BRANCH_NAME, KARNOT_REPO_ORG, MADARA_REPO_NAME};
+use crate::utils::constants::{APP_DA_CONFIG_NAME, MADARA_BRANCH_NAME, MADARA_REPO_NAME, MADARA_REPO_ORG};
 use crate::utils::errors::MadaraError;
 use crate::utils::github::git_clone;
 use crate::utils::paths::{get_app_home, get_madara_home};
 
 pub const GITHUB_BASE_URL: &str = "https://github.com";
 
-pub fn clone_madara_and_build_repo() -> Result<(), MadaraError> {
-    let repo_url = format!("{}/{}/{}", GITHUB_BASE_URL, KARNOT_REPO_ORG, MADARA_REPO_NAME);
+pub fn clone_madara_and_build_repo(config: &AppChainConfig) -> Result<(), MadaraError> {
+    let repo_url = format!("{}/{}/{}", GITHUB_BASE_URL, MADARA_REPO_ORG, MADARA_REPO_NAME);
     let madara_path = get_madara_home()?.join("madara");
 
-    match git_clone(&repo_url, &madara_path, Some(BRANCH_NAME)) {
+    let madara_version = match config.madara_version.as_str() {
+        // there was a bug initially where the wrong commit version was being set
+        // in the config
+        "523ceedc8afe7a4f58abfdbb915aff3c36e817fe" => "5de416aeb2d9e4297e58f7f2dff99aeae521855e",
+        _ => config.madara_version.as_str(),
+    };
+    match git_clone(&repo_url, &madara_path, Some(madara_version)) {
         Ok(_) => {
             log::info!("Successfully cloned Madara repo");
         }
