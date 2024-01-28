@@ -34,4 +34,5 @@ pub enum RollupMode {
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ConfigVersion {
     Version1,
+    Version2,
 }
