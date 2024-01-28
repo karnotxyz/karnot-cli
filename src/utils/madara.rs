@@ -15,7 +15,9 @@ pub fn clone_madara_and_build_repo(config: &AppChainConfig) -> Result<(), Madara
     let madara_version = match config.madara_version.as_str() {
         // there was a bug initially where the wrong commit version was being set
         // in the config
-        "523ceedc8afe7a4f58abfdbb915aff3c36e817fe" => "5de416aeb2d9e4297e58f7f2dff99aeae521855e",
+        "523ceedc8afe7a4f58abfdbb915aff3c36e817fe" | "8b49fecfe6f420a1dede1e691d50cd59a326bbc0" => {
+            "5de416aeb2d9e4297e58f7f2dff99aeae521855e"
+        }
         _ => config.madara_version.as_str(),
     };
     match git_clone(&repo_url, &madara_path, Some(madara_version)) {
