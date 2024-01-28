@@ -39,6 +39,22 @@ pub fn git_clone(url: &str, path: &PathBuf, branch: Option<&str>) -> Result<(), 
             let remote = repo.find_remote("origin")?;
             if let Some(remote_url) = remote.url() {
                 if remote_url == url {
+                    if let Some(branch) = branch {
+                        let x = Command::new("git")
+                            .arg("fetch")
+                            .stdout(Stdio::inherit())
+                            .stderr(Stdio::inherit())
+                            .current_dir(path)
+                            .output()?;
+                        Command::new("git")
+                            .arg("checkout")
+                            .arg(branch)
+                            .current_dir(path)
+                            .stdout(Stdio::inherit())
+                            .stderr(Stdio::inherit())
+                            .output()?;
+                        Command::new("git").arg("pull").stdout(Stdio::inherit()).stderr(Stdio::inherit()).output()?;
+                    }
                     return Ok(());
                 }
             }

@@ -3,7 +3,7 @@ pub const MADARA_REPO_NAME: &str = "madara";
 
 pub const KARNOT_REPO_ORG: &str = "karnotxyz";
 
-pub const BRANCH_NAME: &str = "custom_events_page";
+pub const BRANCH_NAME: &str = "cli_branch";
 
 pub const APP_CONFIG_NAME: &str = "config.toml";
 pub const APP_DA_CONFIG_NAME: &str = "da-config.json";
