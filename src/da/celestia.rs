@@ -60,7 +60,7 @@ impl DaClient for CelestiaClient {
             exec_cmd_in_celestia_container(run_cmd).await?;
             // Waits for docker container to execute the commands and generate the keys
             loop {
-                let container_exists = is_container_running(&CELESTIA_CONTAINER_NAME).await;
+                let container_exists = is_container_running(CELESTIA_CONTAINER_NAME).await;
                 if !container_exists {
                     break; // Container has exited
                 }
