@@ -5,16 +5,16 @@ use std::path::PathBuf;
 
 use async_trait::async_trait;
 use bollard::models::{HostConfig, Mount, PortBinding};
-use serde::{Deserialize, Serialize};
-use eyre::Result as EyreResult;
 use eyre::Report as EyreReport;
+use eyre::Result as EyreResult;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::app::config::AppChainConfig;
 use crate::cli::prompt::get_boolean_input;
 use crate::da::da_layers::{DaClient, DaError};
 use crate::utils::docker::{container_exists, is_container_running, kill_container, run_docker_image};
-use crate::utils::paths::{get_madara_home};
+use crate::utils::paths::get_madara_home;
 use std::time::Duration;
 
 pub struct CelestiaClient;
@@ -50,12 +50,12 @@ impl DaClient for CelestiaClient {
         let file_keys_txt = celestia_home.join("keys.txt");
         let file_auth_txt = celestia_home.join("auth.txt");
 
-        if !file_keys_txt.exists() ||  !file_auth_txt.exists() {
+        if !file_keys_txt.exists() || !file_auth_txt.exists() {
             let run_cmd = vec![
                 "sh",
                 "-c",
                 "celestia light init --p2p.network=mocha > /home/celestia/keys.txt &&\
-                 celestia light auth admin --p2p.network=mocha > /home/celestia/auth.txt"
+                 celestia light auth admin --p2p.network=mocha > /home/celestia/auth.txt",
             ];
             exec_cmd_in_celestia_container(run_cmd).await?;
             // Waits for docker container to execute the commands and generate the keys
@@ -89,7 +89,7 @@ impl DaClient for CelestiaClient {
             }
         }
 
-        if address.is_empty()|| auth_token.is_empty() {
+        if address.is_empty() || auth_token.is_empty() {
             return Err(EyreReport::from(DaError::CelestiaError(CelestiaError::SetupError)));
         }
 
@@ -118,11 +118,7 @@ impl DaClient for CelestiaClient {
     }
 
     async fn setup(&self, _config: &AppChainConfig) -> eyre::Result<()> {
-        let run_cmd = vec![
-            "sh",
-            "-c",
-            "celestia light start --core.ip=rpc-mocha.pops.one --p2p.network=mocha",
-        ];
+        let run_cmd = vec!["sh", "-c", "celestia light start --core.ip=rpc-mocha.pops.one --p2p.network=mocha"];
         exec_cmd_in_celestia_container(run_cmd).await
     }
 }

@@ -64,7 +64,7 @@ pub async fn is_container_running(container_name: &str) -> bool {
     let docker = Docker::connect_with_local_defaults().unwrap();
 
     if let Some(state) = docker.inspect_container(container_name, None).await.unwrap_or_default().state {
-            return state.running.unwrap_or(false);
+        return state.running.unwrap_or(false);
     }
 
     false

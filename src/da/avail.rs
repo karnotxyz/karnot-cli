@@ -1,10 +1,10 @@
 use std::fs;
 
 use async_trait::async_trait;
+use eyre::Result as EyreResult;
 use hex::encode;
 use serde::{Deserialize, Serialize};
 use sp_core::{sr25519, Pair};
-use eyre::Result as EyreResult;
 use thiserror::Error;
 
 use crate::app::config::AppChainConfig;
