@@ -47,7 +47,7 @@ pub enum DaError {
 
 #[async_trait]
 pub trait DaClient {
-    async fn generate_da_config(&self, config: &AppChainConfig) -> Result<(), DaError>;
+    async fn generate_da_config(&self, config: &AppChainConfig) -> EyreResult<()>;
 
     fn confirm_minimum_balance(&self, config: &AppChainConfig) -> Result<(), DaError>;
 

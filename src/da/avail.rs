@@ -4,6 +4,7 @@ use async_trait::async_trait;
 use hex::encode;
 use serde::{Deserialize, Serialize};
 use sp_core::{sr25519, Pair};
+use eyre::Result as EyreResult;
 use thiserror::Error;
 
 use crate::app::config::AppChainConfig;
@@ -33,7 +34,7 @@ const AVAIL_DOCS: &str = "https://docs.availproject.org/about/faucet/";
 
 #[async_trait]
 impl DaClient for AvailClient {
-    async fn generate_da_config(&self, config: &AppChainConfig) -> Result<(), DaError> {
+    async fn generate_da_config(&self, config: &AppChainConfig) -> EyreResult<()> {
         let file_path = self.get_da_config_path(config)?;
         let file_path_str = file_path.to_string_lossy().to_string();
         let (pair, phrase, seed) = <sr25519::Pair as Pair>::generate_with_phrase(None);

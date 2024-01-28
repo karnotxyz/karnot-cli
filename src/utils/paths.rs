@@ -34,13 +34,3 @@ pub fn get_app_home(app: &str) -> Result<PathBuf, Error> {
 
     Ok(app_home)
 }
-
-pub fn get_celestia_home() -> Result<PathBuf, Error> {
-    let madara_home = get_madara_home()?;
-    let celestia_home = madara_home.join("celestia");
-
-    // Creates the `celestia` directory if not present
-    fs::create_dir_all(&celestia_home)?;
-
-    Ok(celestia_home)
-}
