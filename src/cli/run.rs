@@ -48,7 +48,7 @@ async fn start_app_chain() -> Result<(), RunError> {
         }
     };
 
-    madara::clone_madara_and_build_repo(&config)?;
+    madara::clone_madara_and_build_repo()?;
 
     let da_factory = DAFactory::new_da(&config.da_layer);
     da_factory.confirm_minimum_balance(&config)?;
