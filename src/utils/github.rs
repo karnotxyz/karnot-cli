@@ -38,9 +38,7 @@ pub fn git_clone(url: &str, path: &PathBuf, branch: Option<&str>) -> Result<(), 
             if let Some(remote_url) = remote.url() {
                 if remote_url == url {
                     if let Some(branch) = branch {
-                        log::info!("fetching");
                         execute_cmd("git", &["fetch"], path)?;
-                        log::info!("checking out");
                         execute_cmd_stdio("git", &["checkout", branch], path, Stdio::null(), Stdio::null())?;
                     }
                     return Ok(());
