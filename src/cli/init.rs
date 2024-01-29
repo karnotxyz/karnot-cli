@@ -7,7 +7,7 @@ use thiserror::Error;
 use super::prompt::{get_option, get_text_input};
 use crate::app::config::{AppChainConfig, ConfigVersion, RollupMode};
 use crate::da::da_layers::{DAFactory, DALayer};
-use crate::utils::constants::{APP_CONFIG_NAME, MADARA_REPO_NAME, MADARA_REPO_ORG};
+use crate::utils::constants::{APP_CONFIG_NAME, MADARA_BRANCH_NAME, MADARA_REPO_NAME, MADARA_REPO_ORG};
 use crate::utils::errors::GithubError;
 use crate::utils::github::get_latest_commit_hash;
 use crate::utils::paths::{get_app_chains_home, get_app_home};
@@ -53,7 +53,7 @@ async fn generate_config() -> Result<AppChainConfig, InitError> {
 
     let mode = get_option("Select mode for your app chain:", RollupMode::iter().collect::<Vec<_>>())?;
     let da_layer = get_option("Select DA layer for your app chain:", DALayer::iter().collect::<Vec<_>>())?;
-    let madara_version = get_latest_commit_hash(MADARA_REPO_ORG, MADARA_REPO_NAME).await?;
+    let madara_version = get_latest_commit_hash(MADARA_REPO_ORG, MADARA_REPO_NAME, MADARA_BRANCH_NAME).await?;
     let config_version = ConfigVersion::Version1;
 
     log::info!("\n");
