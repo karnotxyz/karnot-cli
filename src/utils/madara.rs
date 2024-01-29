@@ -1,18 +1,26 @@
-use crate::app::config::AppChainConfig;
+use crate::app::config::{AppChainConfig, ConfigVersion};
 use crate::da::da_layers::DALayer;
 use crate::utils::cmd::execute_cmd;
-use crate::utils::constants::{APP_DA_CONFIG_NAME, BRANCH_NAME, KARNOT_REPO_ORG, MADARA_REPO_NAME};
+use crate::utils::constants::{APP_DA_CONFIG_NAME, MADARA_REPO_NAME, MADARA_REPO_ORG};
 use crate::utils::errors::MadaraError;
 use crate::utils::github::git_clone;
 use crate::utils::paths::{get_app_home, get_madara_home};
 
 pub const GITHUB_BASE_URL: &str = "https://github.com";
 
-pub fn clone_madara_and_build_repo() -> Result<(), MadaraError> {
-    let repo_url = format!("{}/{}/{}", GITHUB_BASE_URL, KARNOT_REPO_ORG, MADARA_REPO_NAME);
+pub fn clone_madara_and_build_repo(config: &AppChainConfig) -> Result<(), MadaraError> {
+    let repo_url = format!("{}/{}/{}", GITHUB_BASE_URL, MADARA_REPO_ORG, MADARA_REPO_NAME);
     let madara_path = get_madara_home()?.join("madara");
 
-    match git_clone(&repo_url, &madara_path, Some(BRANCH_NAME)) {
+    // there was a bug in Version1 where the incorrect commit was
+    // going inside the toml file, so override with the correct commit
+    // in that case
+    let checkout_commit = match config.config_version {
+        ConfigVersion::Version2 => config.madara_version.as_str(),
+        ConfigVersion::Version1 => "5de416aeb2d9e4297e58f7f2dff99aeae521855e",
+    };
+
+    match git_clone(&repo_url, &madara_path, Some(checkout_commit)) {
         Ok(_) => {
             log::info!("Successfully cloned Madara repo");
         }

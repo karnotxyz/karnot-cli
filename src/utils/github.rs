@@ -2,6 +2,7 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
+use crate::utils::cmd::{execute_cmd, execute_cmd_stdio};
 use git2::Repository;
 use reqwest::Client;
 use serde::Deserialize;
@@ -14,22 +15,19 @@ struct Commit {
     sha: String,
 }
 
-pub async fn get_latest_commit_hash(org: &str, repo: &str) -> Result<String, GithubError> {
-    let github_api_url = format!("{}/repos/{}/{}/commits", GITHUB_API_BASE_URL, org, repo);
+pub async fn get_latest_commit_hash(org: &str, repo: &str, branch: &str) -> Result<String, GithubError> {
+    let github_api_url = format!("{}/repos/{}/{}/commits/{}", GITHUB_API_BASE_URL, org, repo, branch);
 
     let client = Client::new();
     let response = client.get(github_api_url).header("User-Agent", "reqwest").send().await;
 
-    return match response {
-        Ok(response) => match response.json::<Vec<Commit>>().await {
-            Ok(commits) => match commits.first() {
-                Some(latest_commit) => Ok(latest_commit.sha.clone()),
-                None => Err(GithubError::NoCommitsFound),
-            },
+    match response {
+        Ok(response) => match response.json::<Commit>().await {
+            Ok(latest_commit) => Ok(latest_commit.sha.clone()),
             Err(err) => Err(GithubError::FailedToGetCommits(err)),
         },
         Err(err) => Err(GithubError::FailedToGetCommits(err)),
-    };
+    }
 }
 
 pub fn git_clone(url: &str, path: &PathBuf, branch: Option<&str>) -> Result<(), GithubError> {
@@ -39,6 +37,10 @@ pub fn git_clone(url: &str, path: &PathBuf, branch: Option<&str>) -> Result<(), 
             let remote = repo.find_remote("origin")?;
             if let Some(remote_url) = remote.url() {
                 if remote_url == url {
+                    if let Some(branch) = branch {
+                        execute_cmd("git", &["fetch"], path)?;
+                        execute_cmd_stdio("git", &["checkout", branch], path, Stdio::null(), Stdio::null())?;
+                    }
                     return Ok(());
                 }
             }
