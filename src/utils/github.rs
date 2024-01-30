@@ -10,6 +10,8 @@ use serde::Deserialize;
 use crate::utils::errors::GithubError;
 pub const GITHUB_API_BASE_URL: &str = "https://api.github.com";
 
+use crate::utils::constants::MADARA_BRANCH_NAME;
+
 #[derive(Debug, Deserialize)]
 struct Commit {
     sha: String,
@@ -30,16 +32,16 @@ pub async fn get_latest_commit_hash(org: &str, repo: &str, branch: &str) -> Resu
     }
 }
 
-pub fn git_clone(url: &str, path: &PathBuf, branch: Option<&str>) -> Result<(), GithubError> {
+pub fn git_clone(url: &str, path: &PathBuf, commit: Option<&str>) -> Result<(), GithubError> {
     if let Ok(repo) = Repository::open(path) {
         // Check if the repository is valid
         if repo.is_empty() == Ok(false) {
             let remote = repo.find_remote("origin")?;
             if let Some(remote_url) = remote.url() {
                 if remote_url == url {
-                    if let Some(branch) = branch {
+                    if let Some(commit) = commit {
                         execute_cmd("git", &["fetch"], path)?;
-                        execute_cmd_stdio("git", &["checkout", branch], path, Stdio::null(), Stdio::null())?;
+                        execute_cmd_stdio("git", &["checkout", commit], path, Stdio::null(), Stdio::null())?;
                     }
                     return Ok(());
                 }
@@ -54,12 +56,14 @@ pub fn git_clone(url: &str, path: &PathBuf, branch: Option<&str>) -> Result<(), 
     }
 
     let mut cmd = Command::new("git");
-    cmd.arg("clone").arg("--progress").arg(url).arg(path).stdout(Stdio::inherit()).stderr(Stdio::inherit());
-
-    if let Some(branch) = branch {
-        let clone_branch = format!("--branch={}", branch);
-        cmd.arg(clone_branch);
-    }
+    cmd.arg("clone")
+        .arg("--progress")
+        .arg(url)
+        .arg(path)
+        .arg("--branch")
+        .arg(MADARA_BRANCH_NAME)
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit());
 
     let output = cmd.output()?;
 
@@ -67,6 +71,11 @@ pub fn git_clone(url: &str, path: &PathBuf, branch: Option<&str>) -> Result<(), 
 
     if status.success() {
         log::info!("Clone successful!");
+
+        if let Some(commit) = commit {
+            execute_cmd_stdio("git", &["checkout", commit], path, Stdio::null(), Stdio::null())?;
+        }
+
         Ok(())
     } else {
         log::error!("Clone failed");
