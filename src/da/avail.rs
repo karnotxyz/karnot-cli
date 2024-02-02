@@ -85,7 +85,7 @@ impl DaClient for AvailClient {
 
 fn generate_config(da_config_path: &str, seed: &str, address: &str) -> Result<(), DaError> {
     let avail_config = AvailConfig {
-        ws_provider: "wss://goldberg.avail.tools:443/ws".to_string(),
+        ws_provider: "wss://karnot-rpc.avail.tools:443/ws".to_string(),
         mode: "sovereign".to_string(),
         seed: seed.to_string(),
         app_id: 0,
