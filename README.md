@@ -1,4 +1,4 @@
-# Madara CLI
+# Karnot CLI
 
 A command-line tool for rapid deployment of Madara app chains.
 
