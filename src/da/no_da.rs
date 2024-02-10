@@ -1,12 +1,14 @@
 pub struct NoDAConfig;
 
+use async_trait::async_trait;
+
 use crate::app::config::AppChainConfig;
 use crate::da::da_layers::{DaClient, DaError};
-use async_trait::async_trait;
+use eyre::Result as EyreResult;
 
 #[async_trait]
 impl DaClient for NoDAConfig {
-    fn setup_and_generate_keypair(&self, config: &AppChainConfig) -> Result<(), DaError> {
+    async fn generate_da_config(&self, config: &AppChainConfig) -> EyreResult<()> {
         log::info!("Launching {} without any DA mode", config.app_chain);
         Ok(())
     }

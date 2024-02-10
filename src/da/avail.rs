@@ -1,13 +1,14 @@
-use async_trait::async_trait;
 use std::fs;
 
-use crate::app::config::AppChainConfig;
-use crate::cli::prompt::get_boolean_input;
+use async_trait::async_trait;
+use eyre::Result as EyreResult;
 use hex::encode;
 use serde::{Deserialize, Serialize};
 use sp_core::{sr25519, Pair};
 use thiserror::Error;
 
+use crate::app::config::AppChainConfig;
+use crate::cli::prompt::get_boolean_input;
 use crate::da::da_layers::{DaClient, DaError};
 
 pub struct AvailClient;
@@ -33,7 +34,7 @@ const AVAIL_DOCS: &str = "https://docs.availproject.org/about/faucet/";
 
 #[async_trait]
 impl DaClient for AvailClient {
-    fn setup_and_generate_keypair(&self, config: &AppChainConfig) -> Result<(), DaError> {
+    async fn generate_da_config(&self, config: &AppChainConfig) -> EyreResult<()> {
         let file_path = self.get_da_config_path(config)?;
         let file_path_str = file_path.to_string_lossy().to_string();
         let (pair, phrase, seed) = <sr25519::Pair as Pair>::generate_with_phrase(None);
@@ -54,7 +55,7 @@ impl DaClient for AvailClient {
             );
         }
 
-        generate_config(file_path_str.as_str(), &seed_str, pair.public().to_string().as_str())?;
+        write_config(file_path_str.as_str(), &seed_str, pair.public().to_string().as_str())?;
 
         Ok(())
     }
@@ -83,7 +84,7 @@ impl DaClient for AvailClient {
     }
 }
 
-fn generate_config(da_config_path: &str, seed: &str, address: &str) -> Result<(), DaError> {
+fn write_config(da_config_path: &str, seed: &str, address: &str) -> Result<(), DaError> {
     let avail_config = AvailConfig {
         ws_provider: "wss://karnot-rpc.avail.tools:443/ws".to_string(),
         mode: "sovereign".to_string(),

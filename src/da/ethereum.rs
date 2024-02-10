@@ -1,23 +1,21 @@
-use crate::app::config::AppChainConfig;
-use crate::da::da_layers::{DaClient, DaError};
-use crate::utils::serde::bytes_from_hex_str;
-use async_trait::async_trait;
-use eyre::Result as EyreResult;
-
-use ethers::contract::abigen;
-
-use ethers::middleware::SignerMiddleware;
-use ethers::providers::{Http, Provider};
-use ethers::signers::{LocalWallet, Signer, WalletError};
-
-use serde::{Deserialize, Serialize};
 use std::fs;
-
-use crate::cli::prompt::get_boolean_input;
 use std::str::FromStr;
 use std::sync::Arc;
 use std::time::Duration;
+
+use async_trait::async_trait;
+use ethers::contract::abigen;
+use ethers::middleware::SignerMiddleware;
+use ethers::providers::{Http, Provider};
+use ethers::signers::{LocalWallet, Signer, WalletError};
+use eyre::Result as EyreResult;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
+
+use crate::app::config::AppChainConfig;
+use crate::cli::prompt::get_boolean_input;
+use crate::da::da_layers::{DaClient, DaError};
+use crate::utils::serde::bytes_from_hex_str;
 
 pub struct EthereumClient;
 
@@ -45,7 +43,7 @@ const ANVIL_DOCS: &str = "https://github.com/foundry-rs/foundry/tree/master/crat
 
 #[async_trait]
 impl DaClient for EthereumClient {
-    fn setup_and_generate_keypair(&self, config: &AppChainConfig) -> Result<(), DaError> {
+    async fn generate_da_config(&self, config: &AppChainConfig) -> EyreResult<()> {
         let file_path = self.get_da_config_path(config)?;
         let file_path_str = file_path.to_string_lossy().to_string();
 
@@ -72,7 +70,12 @@ impl DaClient for EthereumClient {
 
     async fn setup(&self, config: &AppChainConfig) -> EyreResult<()> {
         match get_boolean_input(
-            format!("Are you running an Anvil node locally? The CLI tool has been tested on Anvil version 0.2.0 (c312c0d). Docs: {}", ANVIL_DOCS).as_str(),
+            format!(
+                "Are you running an Anvil node locally? The CLI tool has been tested on Anvil version 0.2.0 \
+                 (c312c0d). Docs: {}",
+                ANVIL_DOCS
+            )
+            .as_str(),
             Some(true),
         )? {
             true => Ok(()),

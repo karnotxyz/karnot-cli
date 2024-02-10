@@ -11,10 +11,11 @@ pub async fn run_docker_image(
     container_name: &str,
     env: Option<Vec<&str>>,
     host_config: Option<HostConfig>,
+    start_cmd: Option<Vec<&str>>,
 ) {
     is_docker_installed().await;
     log::info!("🐳 Running docker image: {}", image);
-    match pull_and_start_docker_image(image, container_name, env, host_config).await {
+    match pull_and_start_docker_image(image, container_name, env, host_config, start_cmd).await {
         Ok(..) => {
             log::debug!("Successfully ran {}", container_name);
         }
@@ -59,6 +60,16 @@ pub async fn container_exists(container_name: &str) -> bool {
     }
 }
 
+pub async fn is_container_running(container_name: &str) -> bool {
+    let docker = Docker::connect_with_local_defaults().unwrap();
+
+    if let Some(state) = docker.inspect_container(container_name, None).await.unwrap_or_default().state {
+        return state.running.unwrap_or(false);
+    }
+
+    false
+}
+
 pub async fn kill_container(container_name: &str) -> eyre::Result<()> {
     let docker = Docker::connect_with_local_defaults().unwrap();
     // TODO: handle the error
@@ -72,6 +83,7 @@ pub async fn pull_and_start_docker_image(
     container_name: &str,
     env: Option<Vec<&str>>,
     host_config: Option<HostConfig>,
+    start_cmd: Option<Vec<&str>>,
 ) -> Result<(), Box<dyn std::error::Error + 'static>> {
     let docker = Docker::connect_with_local_defaults().unwrap();
 
@@ -80,7 +92,7 @@ pub async fn pull_and_start_docker_image(
         .try_collect::<Vec<_>>()
         .await?;
 
-    let config = Config { image: Some(image), tty: Some(true), env, host_config, ..Default::default() };
+    let config = Config { image: Some(image), cmd: start_cmd, tty: Some(true), env, host_config, ..Default::default() };
 
     let container_option = Some(CreateContainerOptions { name: container_name, ..Default::default() });
 

@@ -2627,6 +2627,7 @@ dependencies = [
  "inquire",
  "log",
  "rand 0.8.5",
+ "regex",
  "reqwest",
  "serde",
  "serde_json",
@@ -2634,8 +2635,10 @@ dependencies = [
  "strum",
  "strum_macros",
  "thiserror",
+ "time",
  "tokio",
  "toml",
+ "url",
 ]
 
 [[package]]
