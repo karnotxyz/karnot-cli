@@ -2,6 +2,7 @@ use clap::{Parser, Subcommand};
 use log::LevelFilter;
 use madara_cli::cli;
 use madara_cli::cli::explorer::ExplorerOpts;
+use madara_cli::cli::run::RunOpts;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -10,6 +11,7 @@ struct Cli {
     command: Option<Commands>,
 }
 
+
 #[derive(Subcommand)]
 enum Commands {
     /// Init a new App Chain config
@@ -17,7 +19,7 @@ enum Commands {
     /// Lists all the existing App Chain configs
     List,
     /// Runs the App Chain using Madara
-    Run,
+    Run(RunOpts),
     /// Runs the L2 explorer
     Explorer(ExplorerOpts),
 }
@@ -36,7 +38,7 @@ async fn main() {
     match &cli.command {
         Some(Commands::Init) => cli::init::init().await,
         Some(Commands::List) => cli::list::list(),
-        Some(Commands::Run) => cli::run::run().await,
+        Some(Commands::Run(opts)) => cli::run::run(opts).await,
         Some(Commands::Explorer(opts)) => cli::explorer::explorer(opts).await,
         None => log::info!("Use --help to see the complete list of available commands"),
     }
