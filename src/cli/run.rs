@@ -1,5 +1,6 @@
 use inquire::InquireError;
 use thiserror::Error;
+use clap::Args;
 
 use crate::cli::list::get_apps_list;
 use crate::cli::prompt::get_option;
@@ -20,12 +21,22 @@ pub enum RunError {
     FailedToRegenerateConfig(String),
     #[error("Failed with DA error: {0}")]
     FailedWithDaError(#[from] DaError),
+    #[error("Invalid app chain specified: {0}")]
+    InvalidAppChain(String),
     #[error(transparent)]
     Other(#[from] eyre::Error),
 }
 
-pub async fn run() {
-    match start_app_chain().await {
+
+#[derive(Args)]
+pub struct RunOpts {
+    #[clap(long = "app-chain")]
+    app_chain: Option<String>,
+}
+
+pub async fn run(opts: &RunOpts) {
+    let app_chain = &opts.app_chain;
+    match start_app_chain(app_chain).await {
         Ok(_) => {
             log::info!("Madara setup successful");
         }
@@ -34,17 +45,23 @@ pub async fn run() {
         }
     }
 }
+async fn start_app_chain(app_chain: &Option<String>) -> Result<(), RunError> {
+    let app_chain = match app_chain {
+        Some(chain) => {
+            if get_apps_list()?.contains(chain) {
+                chain.clone()
+            } else {
+                return Err(RunError::InvalidAppChain(chain.clone()));
+            }
+        },
+        None => prompt_select_app_chain()?, 
+    };
 
-async fn start_app_chain() -> Result<(), RunError> {
-    let app_chains_list = get_apps_list()?;
-    let app = get_option("Select the app chain:", app_chains_list)?;
-    let app_chain: &str = &app;
-
-    let (config, _) = match regenerate_app_config(app_chain) {
+    let (config, _) = match regenerate_app_config(&app_chain) {
         Ok((config, valid)) => (config, valid),
         Err(err) => {
             log::error!("Failed to fetch the required app chain: {}", err);
-            return Err(RunError::FailedToRegenerateConfig(app_chain.to_string()));
+            return Err(RunError::FailedToRegenerateConfig(app_chain));
         }
     };
 
@@ -57,4 +74,12 @@ async fn start_app_chain() -> Result<(), RunError> {
     madara::setup_and_run_madara(config)?;
 
     Ok(())
+}
+
+
+fn prompt_select_app_chain() -> Result<String, RunError> {
+    let app_chains_list = get_apps_list()?;
+    let app = get_option("Select the app chain:", app_chains_list)?;
+
+    Ok(app)
 }
