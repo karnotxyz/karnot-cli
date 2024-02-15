@@ -1,0 +1,15 @@
+{
+
+  "name": "App-Chain-Name",
+
+  "logo": "Appchain-Logo-WebAdress",
+
+  "rpc_url": "https://37.60.232.153:9944",
+
+  "explorer_url": "https://37.60.232.153:4000",
+
+  "metrics_endpoint": "https://37.60.232.153:9615/metrics",
+
+  "id": "61740ea1-2572-429a-8777-4dac003f7354"
+
+}
