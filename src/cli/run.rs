@@ -24,8 +24,8 @@ pub enum RunError {
     Other(#[from] eyre::Error),
 }
 
-pub async fn run() {
-    match start_app_chain().await {
+pub async fn run(chain_name: &Option<String>) {
+    match start_app_chain(chain_name).await {
         Ok(_) => {
             log::info!("Madara setup successful");
         }
@@ -35,12 +35,18 @@ pub async fn run() {
     }
 }
 
-async fn start_app_chain() -> Result<(), RunError> {
-    let app_chains_list = get_apps_list()?;
-    let app = get_option("Select the app chain:", app_chains_list)?;
-    let app_chain: &str = &app;
+async fn start_app_chain(chain_name: &Option<String>) -> Result<(), RunError> {
+    let app_chain: String;
+    match chain_name {
+        Some(chain_name) => app_chain = chain_name.to_string(),
+        None => {
+            let app_chains_list = get_apps_list()?;
+            let app = get_option("Select the app chain:", app_chains_list)?;
+            app_chain = app;
+        }
+    }
 
-    let (config, _) = match regenerate_app_config(app_chain) {
+    let (config, _) = match regenerate_app_config(&app_chain) {
         Ok((config, valid)) => (config, valid),
         Err(err) => {
             log::error!("Failed to fetch the required app chain: {}", err);

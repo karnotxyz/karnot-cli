@@ -13,11 +13,25 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// Init a new App Chain config
-    Init,
+    Init {
+        /// App chain name
+        #[arg(short, long)]
+        chain_name: Option<String>,
+        /// Select Sovereign
+        #[arg(short, long)]
+        chain_mode: Option<String>,
+        /// Select between Avail, Celestia, Ethereum, NoDA
+        #[arg(short, long)]
+        da: Option<String>
+    },
     /// Lists all the existing App Chain configs
     List,
     /// Runs the App Chain using Madara
-    Run,
+    Run {
+        /// App chain name
+        #[arg(short, long)]
+        chain_name: Option<String>,
+    },
     /// Runs the L2 explorer
     Explorer(ExplorerOpts),
 }
@@ -34,9 +48,9 @@ async fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
-        Some(Commands::Init) => cli::init::init().await,
+        Some(Commands::Init{chain_name, chain_mode, da}) => cli::init::init(chain_name, chain_mode, da).await,
         Some(Commands::List) => cli::list::list(),
-        Some(Commands::Run) => cli::run::run().await,
+        Some(Commands::Run{chain_name}) => cli::run::run(chain_name).await,
         Some(Commands::Explorer(opts)) => cli::explorer::explorer(opts).await,
         None => log::info!("Use --help to see the complete list of available commands"),
     }
