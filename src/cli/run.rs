@@ -36,15 +36,13 @@ pub async fn run(chain_name: &Option<String>) {
 }
 
 async fn start_app_chain(chain_name: &Option<String>) -> Result<(), RunError> {
-    let app_chain: String;
-    match chain_name {
-        Some(chain_name) => app_chain = chain_name.to_string(),
+    let app_chain: String = match chain_name {
+        Some(chain_name) => chain_name.to_string(),
         None => {
             let app_chains_list = get_apps_list()?;
-            let app = get_option("Select the app chain:", app_chains_list)?;
-            app_chain = app;
+            get_option("Select the app chain:", app_chains_list)?
         }
-    }
+    };
 
     let (config, _) = match regenerate_app_config(&app_chain) {
         Ok((config, valid)) => (config, valid),

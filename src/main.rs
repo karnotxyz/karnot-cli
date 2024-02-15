@@ -15,22 +15,22 @@ enum Commands {
     /// Init a new App Chain config
     Init {
         /// App chain name
-        #[arg(short, long)]
-        chain_name: Option<String>,
+        #[arg(short, long = "chain-name")]
+        name: Option<String>,
         /// Select Sovereign
-        #[arg(short, long)]
-        chain_mode: Option<String>,
+        #[arg(short, long = "chain-mode")]
+        mode: Option<String>,
         /// Select between Avail, Celestia, Ethereum, NoDA
-        #[arg(short, long)]
-        da: Option<String>
+        #[arg(short, long = "da-layer")]
+        da: Option<String>,
     },
     /// Lists all the existing App Chain configs
     List,
     /// Runs the App Chain using Madara
     Run {
         /// App chain name
-        #[arg(short, long)]
-        chain_name: Option<String>,
+        #[arg(short, long = "chain-name")]
+        name: Option<String>,
     },
     /// Runs the L2 explorer
     Explorer(ExplorerOpts),
@@ -48,9 +48,9 @@ async fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
-        Some(Commands::Init{chain_name, chain_mode, da}) => cli::init::init(chain_name, chain_mode, da).await,
+        Some(Commands::Init { name, mode, da }) => cli::init::init(name, mode, da).await,
         Some(Commands::List) => cli::list::list(),
-        Some(Commands::Run{chain_name}) => cli::run::run(chain_name).await,
+        Some(Commands::Run { name }) => cli::run::run(name).await,
         Some(Commands::Explorer(opts)) => cli::explorer::explorer(opts).await,
         None => log::info!("Use --help to see the complete list of available commands"),
     }

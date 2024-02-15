@@ -1,5 +1,5 @@
-use std::{fs, io};
 use std::str::FromStr;
+use std::{fs, io};
 
 use inquire::InquireError;
 use strum::IntoEnumIterator;
@@ -47,28 +47,29 @@ pub async fn init(chain_name: &Option<String>, chain_mode: &Option<String>, da: 
     log::info!("✅ New app chain initialised.");
 }
 
-async fn generate_config(chain_name: &Option<String>, chain_mode: &Option<String>, da: &Option<String>) -> Result<AppChainConfig, InitError> {
-    let app_chain: String;
-    match chain_name {
-        Some(chain_name) => app_chain = chain_name.clone(),
-        None => app_chain = get_text_input("Enter you app chain name:", Some("madara"))?,
-    }
+async fn generate_config(
+    chain_name: &Option<String>,
+    chain_mode: &Option<String>,
+    da: &Option<String>,
+) -> Result<AppChainConfig, InitError> {
+    let app_chain: String = match chain_name {
+        Some(chain_name) => chain_name.clone(),
+        None => get_text_input("Enter you app chain name:", Some("madara"))?,
+    };
 
     let app_chains_home = get_app_chains_home()?;
     let binding = app_chains_home.join(format!("{}/data", app_chain));
     let default_base_path = binding.to_str().unwrap_or("madara-data");
 
-    let mode: RollupMode;
-    match chain_mode {
-        Some(chain_mode) => mode = RollupMode::from_str(chain_mode)?,
-        None => mode = get_option("Select mode for your app chain:", RollupMode::iter().collect::<Vec<_>>())?,
-    }
+    let mode: RollupMode = match chain_mode {
+        Some(chain_mode) => RollupMode::from_str(chain_mode)?,
+        None => get_option("Select mode for your app chain:", RollupMode::iter().collect::<Vec<_>>())?,
+    };
 
-    let da_layer: DALayer;
-    match da {
-        Some(da) => da_layer = DALayer::from_str(da)?,
-        None => da_layer = get_option("Select DA layer for your app chain:", DALayer::iter().collect::<Vec<_>>())?,
-    }
+    let da_layer: DALayer = match da {
+        Some(da) => DALayer::from_str(da)?,
+        None => get_option("Select DA layer for your app chain:", DALayer::iter().collect::<Vec<_>>())?,
+    };
 
     let madara_version = get_latest_commit_hash(MADARA_REPO_ORG, MADARA_REPO_NAME, MADARA_BRANCH_NAME).await?;
     let config_version = ConfigVersion::Version2;
