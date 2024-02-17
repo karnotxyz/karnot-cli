@@ -60,12 +60,7 @@ pub fn setup_and_run_madara(config: AppChainConfig, flags: &String) -> Result<()
         &base_path,
     ];
 
-    args.extend(
-        flags
-            .split(",")
-            .map(|flag| flag.trim())
-            .filter(|flag| !flag.is_empty())
-    );
+    args.extend(flags.split(",").map(|flag| flag.trim()).filter(|flag| !flag.is_empty()));
 
     match config.da_layer {
         DALayer::Ethereum => {
