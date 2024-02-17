@@ -31,6 +31,9 @@ enum Commands {
         /// App chain name
         #[arg(short, long = "chain-name")]
         name: Option<String>,
+        /// Additional arguments for Madara
+        #[arg(short, long = "madara-flags")]
+        flags: Option<String>,
     },
     /// Runs the L2 explorer
     Explorer(ExplorerOpts),
@@ -50,7 +53,7 @@ async fn main() {
     match &cli.command {
         Some(Commands::Init { name, mode, da }) => cli::init::init(name, mode, da).await,
         Some(Commands::List) => cli::list::list(),
-        Some(Commands::Run { name }) => cli::run::run(name).await,
+        Some(Commands::Run { name, flags }) => cli::run::run(name, flags).await,
         Some(Commands::Explorer(opts)) => cli::explorer::explorer(opts).await,
         None => log::info!("Use --help to see the complete list of available commands"),
     }
