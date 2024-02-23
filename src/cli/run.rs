@@ -24,7 +24,7 @@ pub enum RunError {
     Other(#[from] eyre::Error),
 }
 
-pub async fn run(chain_name: &Option<String>, madara_flags: &Vec<String>) {
+pub async fn run(chain_name: &Option<String>, madara_flags: &[String]) {
     match start_app_chain(chain_name, madara_flags).await {
         Ok(_) => {
             log::info!("Madara setup successful");
@@ -35,7 +35,7 @@ pub async fn run(chain_name: &Option<String>, madara_flags: &Vec<String>) {
     }
 }
 
-async fn start_app_chain(chain_name: &Option<String>, madara_flags: &Vec<String>) -> Result<(), RunError> {
+async fn start_app_chain(chain_name: &Option<String>, madara_flags: &[String]) -> Result<(), RunError> {
     let app_chain: String = match chain_name {
         Some(chain_name) => chain_name.to_string(),
         None => {
