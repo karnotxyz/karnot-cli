@@ -25,7 +25,7 @@ pub enum RunError {
 }
 
 pub async fn run(chain_name: &Option<String>, madara_flags: &Vec<String>) {
-    match start_app_chain(chain_name, &madara_flags).await {
+    match start_app_chain(chain_name, madara_flags).await {
         Ok(_) => {
             log::info!("Madara setup successful");
         }
@@ -58,7 +58,7 @@ async fn start_app_chain(chain_name: &Option<String>, madara_flags: &Vec<String>
     da_factory.confirm_minimum_balance(&config)?;
     da_factory.setup(&config).await?;
 
-    madara::setup_and_run_madara(config, &madara_flags)?;
+    madara::setup_and_run_madara(config, madara_flags)?;
 
     Ok(())
 }
