@@ -15,7 +15,7 @@ use crate::utils::constants::APP_DA_CONFIG_NAME;
 use crate::utils::paths::get_app_home;
 use eyre::Result as EyreResult;
 
-#[derive(Debug, Serialize, Deserialize, EnumIter, Display, Clone, EnumString)]
+#[derive(Debug, Serialize, Deserialize, EnumIter, Display, Clone, EnumString, clap::ValueEnum)]
 pub enum DALayer {
     Avail,
     Ethereum,

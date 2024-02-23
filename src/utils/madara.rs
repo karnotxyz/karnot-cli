@@ -34,7 +34,7 @@ pub fn clone_madara_and_build_repo(config: &AppChainConfig) -> Result<(), Madara
     Ok(())
 }
 
-pub fn setup_and_run_madara(config: AppChainConfig, flags: &String) -> Result<(), MadaraError> {
+pub fn setup_and_run_madara(config: AppChainConfig, madara_flags: &Vec<String>) -> Result<(), MadaraError> {
     let madara_path = get_madara_home()?.join("madara");
 
     let app_home = get_app_home(config.app_chain.as_str())?;
@@ -60,7 +60,7 @@ pub fn setup_and_run_madara(config: AppChainConfig, flags: &String) -> Result<()
         &base_path,
     ];
 
-    args.extend(flags.split(",").map(|flag| flag.trim()).filter(|flag| !flag.is_empty()));
+    args.extend(madara_flags.iter().map(|arg| arg.as_str()));
 
     match config.da_layer {
         DALayer::Ethereum => {

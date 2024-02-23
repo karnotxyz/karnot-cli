@@ -24,7 +24,7 @@ impl AppChainConfig {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, EnumIter, Display, Clone, EnumString)]
+#[derive(Debug, Serialize, Deserialize, EnumIter, Display, Clone, EnumString, clap::ValueEnum)]
 pub enum RollupMode {
     Sovereign,
     // Validity,

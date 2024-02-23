@@ -49,7 +49,7 @@ pub async fn explorer(opts: &ExplorerOpts) {
     }
 
     run_docker_image(
-        "ghcr.io/lambdaclass/stark_compass_explorer:v0.2.34.3-1",
+        "anshalshukla/starkcompass:latest",
         CONTAINER_NAME,
         Some(env),
         Some(host_config),

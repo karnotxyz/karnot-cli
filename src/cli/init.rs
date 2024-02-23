@@ -1,4 +1,3 @@
-use std::str::FromStr;
 use std::{fs, io};
 
 use inquire::InquireError;
@@ -29,7 +28,7 @@ pub enum InitError {
     FailedToGetEnum(#[from] strum::ParseError),
 }
 
-pub async fn init(chain_name: &Option<String>, chain_mode: &Option<String>, da: &Option<String>) {
+pub async fn init(chain_name: &Option<String>, chain_mode: &Option<RollupMode>, da: &Option<DALayer>) {
     let config = match generate_config(chain_name, chain_mode, da).await {
         Ok(config) => config,
         Err(err) => {
@@ -49,8 +48,8 @@ pub async fn init(chain_name: &Option<String>, chain_mode: &Option<String>, da: 
 
 async fn generate_config(
     chain_name: &Option<String>,
-    chain_mode: &Option<String>,
-    da: &Option<String>,
+    chain_mode: &Option<RollupMode>,
+    da: &Option<DALayer>,
 ) -> Result<AppChainConfig, InitError> {
     let app_chain: String = match chain_name {
         Some(chain_name) => chain_name.clone(),
@@ -62,12 +61,12 @@ async fn generate_config(
     let default_base_path = binding.to_str().unwrap_or("madara-data");
 
     let mode: RollupMode = match chain_mode {
-        Some(chain_mode) => RollupMode::from_str(chain_mode)?,
+        Some(chain_mode) => chain_mode.clone(),
         None => get_option("Select mode for your app chain:", RollupMode::iter().collect::<Vec<_>>())?,
     };
 
     let da_layer: DALayer = match da {
-        Some(da) => DALayer::from_str(da)?,
+        Some(da) => da.clone(),
         None => get_option("Select DA layer for your app chain:", DALayer::iter().collect::<Vec<_>>())?,
     };
 

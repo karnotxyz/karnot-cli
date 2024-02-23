@@ -24,8 +24,8 @@ pub enum RunError {
     Other(#[from] eyre::Error),
 }
 
-pub async fn run(chain_name: &Option<String>, madara_flags: &Option<String>) {
-    match start_app_chain(chain_name, madara_flags).await {
+pub async fn run(chain_name: &Option<String>, madara_flags: &Vec<String>) {
+    match start_app_chain(chain_name, &madara_flags).await {
         Ok(_) => {
             log::info!("Madara setup successful");
         }
@@ -35,7 +35,7 @@ pub async fn run(chain_name: &Option<String>, madara_flags: &Option<String>) {
     }
 }
 
-async fn start_app_chain(chain_name: &Option<String>, madara_flags: &Option<String>) -> Result<(), RunError> {
+async fn start_app_chain(chain_name: &Option<String>, madara_flags: &Vec<String>) -> Result<(), RunError> {
     let app_chain: String = match chain_name {
         Some(chain_name) => chain_name.to_string(),
         None => {
@@ -58,7 +58,7 @@ async fn start_app_chain(chain_name: &Option<String>, madara_flags: &Option<Stri
     da_factory.confirm_minimum_balance(&config)?;
     da_factory.setup(&config).await?;
 
-    madara::setup_and_run_madara(config, madara_flags.as_ref().unwrap_or(&String::from("")))?;
+    madara::setup_and_run_madara(config, &madara_flags)?;
 
     Ok(())
 }
