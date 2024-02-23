@@ -54,7 +54,7 @@ async fn main() {
     match &cli.command {
         Some(Commands::Init { name, mode, da }) => cli::init::init(name, mode, da).await,
         Some(Commands::List) => cli::list::list(),
-        Some(Commands::Run { name, madara_flags}) => cli::run::run(name, madara_flags).await,
+        Some(Commands::Run { name, madara_flags }) => cli::run::run(name, madara_flags).await,
         Some(Commands::Explorer(opts)) => cli::explorer::explorer(opts).await,
         None => log::info!("Use --help to see the complete list of available commands"),
     }

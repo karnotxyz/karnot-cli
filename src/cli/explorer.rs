@@ -48,12 +48,6 @@ pub async fn explorer(opts: &ExplorerOpts) {
         let _ = kill_container(CONTAINER_NAME).await;
     }
 
-    run_docker_image(
-        "anshalshukla/starkcompass:latest",
-        CONTAINER_NAME,
-        Some(env),
-        Some(host_config),
-    )
-    .await;
+    run_docker_image("anshalshukla/starkcompass:latest", CONTAINER_NAME, Some(env), Some(host_config)).await;
     log::info!("🧭 Explorer is running on http://localhost:4000");
 }
