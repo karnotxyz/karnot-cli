@@ -3,7 +3,7 @@ use std::io;
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
-use strum_macros::{Display, EnumIter};
+use strum_macros::{Display, EnumIter, EnumString};
 use thiserror::Error;
 
 use crate::app::config::AppChainConfig;
@@ -15,7 +15,7 @@ use crate::utils::constants::APP_DA_CONFIG_NAME;
 use crate::utils::paths::get_app_home;
 use eyre::Result as EyreResult;
 
-#[derive(Debug, Serialize, Deserialize, EnumIter, Display, Clone)]
+#[derive(Debug, Serialize, Deserialize, EnumIter, Display, Clone, EnumString, clap::ValueEnum)]
 pub enum DALayer {
     Avail,
     Ethereum,

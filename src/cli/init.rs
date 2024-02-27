@@ -24,10 +24,12 @@ pub enum InitError {
     FailedToSerializeToToml(#[from] toml::ser::Error),
     #[error("Failed to generate keypair")]
     FailedToGenerateKeypair,
+    #[error("Failed to convert string to enum")]
+    FailedToGetEnum(#[from] strum::ParseError),
 }
 
-pub async fn init() {
-    let config = match generate_config().await {
+pub async fn init(chain_name: &Option<String>, chain_mode: &Option<RollupMode>, da: &Option<DALayer>) {
+    let config = match generate_config(chain_name, chain_mode, da).await {
         Ok(config) => config,
         Err(err) => {
             panic!("Failed to get input: {}", err);
@@ -44,15 +46,30 @@ pub async fn init() {
     log::info!("✅ New app chain initialised.");
 }
 
-async fn generate_config() -> Result<AppChainConfig, InitError> {
-    let app_chain = get_text_input("Enter you app chain name:", Some("madara"))?;
+async fn generate_config(
+    chain_name: &Option<String>,
+    chain_mode: &Option<RollupMode>,
+    da: &Option<DALayer>,
+) -> Result<AppChainConfig, InitError> {
+    let app_chain: String = match chain_name {
+        Some(chain_name) => chain_name.clone(),
+        None => get_text_input("Enter you app chain name:", Some("madara"))?,
+    };
 
     let app_chains_home = get_app_chains_home()?;
     let binding = app_chains_home.join(format!("{}/data", app_chain));
     let default_base_path = binding.to_str().unwrap_or("madara-data");
 
-    let mode = get_option("Select mode for your app chain:", RollupMode::iter().collect::<Vec<_>>())?;
-    let da_layer = get_option("Select DA layer for your app chain:", DALayer::iter().collect::<Vec<_>>())?;
+    let mode: RollupMode = match chain_mode {
+        Some(chain_mode) => chain_mode.clone(),
+        None => get_option("Select mode for your app chain:", RollupMode::iter().collect::<Vec<_>>())?,
+    };
+
+    let da_layer: DALayer = match da {
+        Some(da) => da.clone(),
+        None => get_option("Select DA layer for your app chain:", DALayer::iter().collect::<Vec<_>>())?,
+    };
+
     let madara_version = get_latest_commit_hash(MADARA_REPO_ORG, MADARA_REPO_NAME, MADARA_BRANCH_NAME).await?;
     let config_version = ConfigVersion::Version2;
 

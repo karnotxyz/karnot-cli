@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use strum::EnumIter;
-use strum_macros::Display;
+use strum_macros::{Display, EnumString};
 use toml::ser::Error;
 
 use crate::da::da_layers::DALayer;
@@ -24,7 +24,7 @@ impl AppChainConfig {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, EnumIter, Display)]
+#[derive(Debug, Serialize, Deserialize, EnumIter, Display, Clone, EnumString, clap::ValueEnum)]
 pub enum RollupMode {
     Sovereign,
     // Validity,

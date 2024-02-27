@@ -34,7 +34,7 @@ pub fn clone_madara_and_build_repo(config: &AppChainConfig) -> Result<(), Madara
     Ok(())
 }
 
-pub fn setup_and_run_madara(config: AppChainConfig) -> Result<(), MadaraError> {
+pub fn setup_and_run_madara(config: AppChainConfig, madara_flags: &[String]) -> Result<(), MadaraError> {
     let madara_path = get_madara_home()?.join("madara");
 
     let app_home = get_app_home(config.app_chain.as_str())?;
@@ -59,6 +59,8 @@ pub fn setup_and_run_madara(config: AppChainConfig) -> Result<(), MadaraError> {
         "--rpc-external",
         &base_path,
     ];
+
+    args.extend(madara_flags.iter().map(|arg| arg.as_str()));
 
     match config.da_layer {
         DALayer::Ethereum => {

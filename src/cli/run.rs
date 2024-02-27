@@ -24,8 +24,8 @@ pub enum RunError {
     Other(#[from] eyre::Error),
 }
 
-pub async fn run() {
-    match start_app_chain().await {
+pub async fn run(chain_name: &Option<String>, madara_flags: &[String]) {
+    match start_app_chain(chain_name, madara_flags).await {
         Ok(_) => {
             log::info!("Madara setup successful");
         }
@@ -35,12 +35,16 @@ pub async fn run() {
     }
 }
 
-async fn start_app_chain() -> Result<(), RunError> {
-    let app_chains_list = get_apps_list()?;
-    let app = get_option("Select the app chain:", app_chains_list)?;
-    let app_chain: &str = &app;
+async fn start_app_chain(chain_name: &Option<String>, madara_flags: &[String]) -> Result<(), RunError> {
+    let app_chain: String = match chain_name {
+        Some(chain_name) => chain_name.to_string(),
+        None => {
+            let app_chains_list = get_apps_list()?;
+            get_option("Select the app chain:", app_chains_list)?
+        }
+    };
 
-    let (config, _) = match regenerate_app_config(app_chain) {
+    let (config, _) = match regenerate_app_config(&app_chain) {
         Ok((config, valid)) => (config, valid),
         Err(err) => {
             log::error!("Failed to fetch the required app chain: {}", err);
@@ -54,7 +58,7 @@ async fn start_app_chain() -> Result<(), RunError> {
     da_factory.confirm_minimum_balance(&config)?;
     da_factory.setup(&config).await?;
 
-    madara::setup_and_run_madara(config)?;
+    madara::setup_and_run_madara(config, madara_flags)?;
 
     Ok(())
 }
