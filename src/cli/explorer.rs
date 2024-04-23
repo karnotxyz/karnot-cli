@@ -1,9 +1,9 @@
+use std::collections::HashMap;
+
 use bollard::models::{HostConfig, PortBinding};
+use clap::Args;
 use rand::distributions::Alphanumeric;
 use rand::Rng;
-
-use clap::Args;
-use std::collections::HashMap;
 
 use crate::utils::docker::{container_exists, kill_container, run_docker_image};
 
