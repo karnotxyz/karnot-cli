@@ -1,19 +1,18 @@
-use async_trait::async_trait;
 use std::io;
 use std::path::PathBuf;
 
+use async_trait::async_trait;
+use eyre::Result as EyreResult;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumIter, EnumString};
 use thiserror::Error;
 
 use crate::app::config::AppChainConfig;
 use crate::da::avail::{AvailClient, AvailError};
-use crate::da::ethereum::EthereumClient;
-use crate::da::ethereum::EthereumError;
+use crate::da::ethereum::{EthereumClient, EthereumError};
 use crate::da::no_da::NoDAConfig;
 use crate::utils::constants::APP_DA_CONFIG_NAME;
 use crate::utils::paths::get_app_home;
-use eyre::Result as EyreResult;
 
 #[derive(Debug, Serialize, Deserialize, EnumIter, Display, Clone, EnumString, clap::ValueEnum)]
 pub enum DALayer {
