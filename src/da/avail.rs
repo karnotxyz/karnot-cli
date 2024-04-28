@@ -1,13 +1,13 @@
-use async_trait::async_trait;
 use std::fs;
 
-use crate::app::config::AppChainConfig;
-use crate::cli::prompt::get_boolean_input;
+use async_trait::async_trait;
 use hex::encode;
 use serde::{Deserialize, Serialize};
 use sp_core::{sr25519, Pair};
 use thiserror::Error;
 
+use crate::app::config::AppChainConfig;
+use crate::cli::prompt::get_boolean_input;
 use crate::da::da_layers::{DaClient, DaError};
 
 pub struct AvailClient;
@@ -49,7 +49,8 @@ impl DaClient for AvailClient {
                 AVAIL_DOCS
             );
             log::info!(
-                "🛠️ If you want to use a custom Avail address, please enter your seed and address in the config file: {}.",
+                "🛠️ If you want to use a custom Avail address, please enter your seed and address in the config file: \
+                 {}.",
                 file_path_str
             );
         }
