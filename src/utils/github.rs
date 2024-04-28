@@ -2,11 +2,11 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
-use crate::utils::cmd::{execute_cmd, execute_cmd_stdio};
 use git2::Repository;
 use reqwest::Client;
 use serde::Deserialize;
 
+use crate::utils::cmd::{execute_cmd, execute_cmd_stdio};
 use crate::utils::errors::GithubError;
 pub const GITHUB_API_BASE_URL: &str = "https://api.github.com";
 

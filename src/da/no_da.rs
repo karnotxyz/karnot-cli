@@ -1,8 +1,9 @@
 pub struct NoDAConfig;
 
+use async_trait::async_trait;
+
 use crate::app::config::AppChainConfig;
 use crate::da::da_layers::{DaClient, DaError};
-use async_trait::async_trait;
 
 #[async_trait]
 impl DaClient for NoDAConfig {
