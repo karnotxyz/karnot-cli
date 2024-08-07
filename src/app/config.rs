@@ -13,7 +13,7 @@ pub struct AppChainConfig {
     pub da_layer: DALayer,
     /// Stores commit hash of madara app chain build
     pub madara_version: String,
-    /// Maintains version of config, will help in handling edge
+    /// Maintains version of config, which will help in handling edge
     /// cases when attributes are added / removed from struct
     pub config_version: ConfigVersion,
 }

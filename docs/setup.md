@@ -31,7 +31,7 @@ rustc 1.75.0 (82e1608df 2023-12-21)
 Install `docker`. It is recommended to follow the instructions from the
 [official site](https://docs.docker.com/install/).
 
-Installing `docker` via `snap` or from the default repository can cause troubles.
+Installing `docker` via `snap` or from the default repository can cause trouble.
 
 **Note:** On linux you may encounter the following error when you’ll try to work with `madara-cli`:
 
@@ -84,7 +84,7 @@ brew --version
 Homebrew 4.2.2
 ```
 
-If brew is not found, install using following command:
+If brew is not found, install using the following command:
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
